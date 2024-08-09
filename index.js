@@ -8,6 +8,7 @@ const { dbConnection } = require("./src/configs/dbConnection");
 const logger = require("./src/middlewares/logger");
 const errorHandler = require("./src/middlewares/erroHandler");
 const cors = require("cors");
+const queryHandler = require("./src/middlewares/queryHandler");
 
 
 /* ------------------------------- Express app ------------------------------ */
@@ -28,6 +29,9 @@ app.use(logger);
 
 //cors
 app.use(cors());
+
+//query handler
+app.use(queryHandler)
 
 
 /* --------------------------------- routes --------------------------------- */

@@ -35,8 +35,9 @@ router.use(
     express.static(path.join(__dirname, "node_modules", "swagger-ui-dist"))
   );
 
-//documents
+//Routes
 router.use('/documents',require('./documentRouter'));
+router.use('/users',require('./userRouter'));
 
 
  
