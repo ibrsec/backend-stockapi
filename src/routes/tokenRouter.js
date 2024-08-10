@@ -2,20 +2,20 @@
 
 
 const router = require("express").Router();
-const { user } = require("../controllers/userController");
+const { token } = require("../controllers/tokenController");
 /* ------------------------------------ k ----------------------------------- */
 
 router
     .route("/")
-        .get(user.list)
-        .post(user.create);
+        .get(token.list)
+        .post(token.create);
 
 router
   .route("/:id")
-    .get(user.read)
-    .put(user.update)
-    .patch(user.partialUpdate)
-    .delete(user.delete);
+    .get(token.read)
+    .put(token.update)
+    .patch(token.partialUpdate)
+    .delete(token.delete);
 
 /* ------------------------------------ k ----------------------------------- */
 module.exports = router;

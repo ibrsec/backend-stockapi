@@ -7,45 +7,21 @@
 
 
 /* ------------------------------------ imports ----------------------------------- */
-const express = require('express');
-const router = express.Router();
-const path = require("node:path");
+
+const router = require('express').Router();
 
 
 
 /* ------------------------------------ routes ----------------------------------- */
 
-//welcome route
-router.all('/',(req,res)=>{
-    res.json({
-        message:"Welcome to Stock api!"
-        ,documents:[
-            '/documents/json',
-            '/documents/swagger',
-            '/documents/redoc',
-        ]
-    })
-})
-
-
-
-// swagger static
-router.use(
-    "/swagger",
-    express.static(path.join(__dirname, "node_modules", "swagger-ui-dist"))
-  );
-
 //Routes
 router.use('/documents',require('./documentRouter'));
 router.use('/users',require('./userRouter'));
+router.use('/tokens',require('./tokenRouter'));
+router.use('/auth',require('./authRouter'));
 
 
  
-//not found route
-router.use('*',(req,res)=>{
-res.errorStatusCode = 400;
-throw new Error('route not found!')
-})
 
 
 

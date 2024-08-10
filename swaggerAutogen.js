@@ -1,13 +1,12 @@
 "use strict";
-
-require('dotenv').config();
  
-const swaggerAutogen = require('swagger-autogen');
+require("dotenv").config();
 const PORT = process.env.PORT;
 const HOST = process.env.HOST;
-const packageJson = require('./package.json');
 
- 
+const swaggerAutogen = require("swagger-autogen");
+const packageJson = require("./package.json");
+
 const document = {
   info: {
     version: packageJson.version,
@@ -53,8 +52,7 @@ const document = {
   },
 };
 
-const routes = ['./index.js'];
-const outputFile = './src/configs/swagger.json';
+const routes = ["./index.js"];
+const outputFile = "./src/configs/swagger.json";
 
 swaggerAutogen(outputFile, routes, document);
-

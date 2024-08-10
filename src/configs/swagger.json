@@ -42,14 +42,436 @@
   "paths": {
     "/users/": {
       "get": {
-        "description": "",
+        "tags": [
+          "Users"
+        ],
+        "summary": "List Users",
+        "description": "  List all users!</br></br>  <b>Permission= Loginned user</b></br>   - Normal users can't list staff or admin users</br>  - Staff users can't list admin users</br></br>  Token endpoint is hidden </br></br>  You can send query with endpoint for filter[],search[], sort[], page and limit.  <ul> Examples:   <li>URL/?<b>filter[field1]=value1&filter[field2]=value2</b></li>   <li>URL/?<b>search[field1]=value1&search[field2]=value2</b></li>   <li>URL/?<b>sort[field1]=1&sort[field2]=-1</b></li>   <li>URL/?<b>page=2&limit=1</b></li>  </ul>  ",
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
           }
         }
       },
       "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Create new User",
+        "description": "  List all users!</br></br>  <b>Permission= No Permission</b></br>   - Admin or staff or in-active users can be create.d just by admin users</br></br>  - Password type Rules- [lenght:8-16, at least: 1 upper, 1 lower, 1 number, 1 special[@$!%*?&]]</br>  - Email type Rules- --@--.--</br>  - Required fields: - username,email,password</br>  ",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "username": {
+                  "type": "string",
+                  "example": "testuser"
+                },
+                "email": {
+                  "type": "string",
+                  "example": "testuser@email.com"
+                },
+                "password": {
+                  "type": "string",
+                  "example": "Password1*"
+                },
+                "first_name": {
+                  "type": "string",
+                  "example": "firstname"
+                },
+                "last_name": {
+                  "type": "string",
+                  "example": "lastname"
+                },
+                "is_active": {
+                  "type": "boolean",
+                  "example": true
+                },
+                "is_admin": {
+                  "type": "boolean",
+                  "example": false
+                },
+                "is_staff": {
+                  "type": "boolean",
+                  "example": false
+                }
+              },
+              "required": [
+                "username",
+                "email",
+                "password"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully  !",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "boolean",
+                  "example": false
+                },
+                "message": {
+                  "type": "string",
+                  "example": "A new user is created!!"
+                },
+                "result": {
+                  "$ref": "#/definitions/User"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - username,email,password fields are required!"
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get a user",
+        "description": "  Get a user by id!!</br></br>  <b>Permission= Loginned user</b></br>   - Admin can list all users!</br>  - Staff user can list all users except admin users!</br>  - Normal user can list all users except admin or staff users!</br></br>",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "username": {
+                  "type": "string",
+                  "example": "testuser"
+                },
+                "email": {
+                  "type": "string",
+                  "example": "testuser@email.com"
+                },
+                "password": {
+                  "type": "string",
+                  "example": "Password1*"
+                },
+                "first_name": {
+                  "type": "string",
+                  "example": "firstname"
+                },
+                "last_name": {
+                  "type": "string",
+                  "example": "lastname"
+                },
+                "is_active": {
+                  "type": "boolean",
+                  "example": true
+                },
+                "is_admin": {
+                  "type": "boolean",
+                  "example": false
+                },
+                "is_staff": {
+                  "type": "boolean",
+                  "example": false
+                }
+              }
+            },
+            "description": "One field is enough!"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully found!",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "boolean",
+                  "example": false
+                },
+                "message": {
+                  "type": "string",
+                  "example": "User is found!"
+                },
+                "result": {
+                  "$ref": "#/definitions/User"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "202": {
+            "description": "Successfully partiqally updated!",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "boolean",
+                  "example": false
+                },
+                "message": {
+                  "type": "string",
+                  "example": "User is partially updated!!"
+                },
+                "result": {
+                  "$ref": "#/definitions/User"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "204": {
+            "description": "Successfully deleted!"
+          },
+          "400": {
+            "description": "Bad request - Invalid id type(ObjectId)!"
+          },
+          "404": {
+            "description": "Not found - User not found!"
+          },
+          "500": {
+            "description": "Something went wrong! - asked record is found, but it couldn't be updated!"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Update a User",
+        "description": "  Update a User by id!</br></br>  <b>Permission= Normal user</b></br>   - Admin users can be update.d just by admin users</br>  - Staff users can be   by admin or staff users</br>  - Normal users can't update other users</br></br>  - Password type Rules- [lenght:8-16, at least: 1 upper, 1 lower, 1 number, 1 special[@$!%*?&]]</br>  - Email type Rules- --@--.--</br>  - Required fields: - username,email,password</br>  ",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "username": {
+                  "type": "string",
+                  "example": "testuser"
+                },
+                "email": {
+                  "type": "string",
+                  "example": "testuser@email.com"
+                },
+                "password": {
+                  "type": "string",
+                  "example": "Password1*"
+                },
+                "first_name": {
+                  "type": "string",
+                  "example": "firstname"
+                },
+                "last_name": {
+                  "type": "string",
+                  "example": "lastname"
+                },
+                "is_active": {
+                  "type": "boolean",
+                  "example": true
+                },
+                "is_admin": {
+                  "type": "boolean",
+                  "example": false
+                },
+                "is_staff": {
+                  "type": "boolean",
+                  "example": false
+                }
+              },
+              "required": [
+                "username",
+                "email",
+                "password"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successfully  !",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "boolean",
+                  "example": false
+                },
+                "message": {
+                  "type": "string",
+                  "example": "User is  !!"
+                },
+                "result": {
+                  "$ref": "#/definitions/User"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request    </br>- Invalid id type(ObjectId)!   </br>- username,email,password fields are required!   </br>- Staff users can't modify the admin users!   </br>- Staff users can't modify other staff users except himself!   </br>- Normal users can't modify other users!      "
+          },
+          "404": {
+            "description": "Not found - User not found!"
+          },
+          "500": {
+            "description": "Something went wrong! - asked record is found, but it couldn't be updated!"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Delete a user",
+        "description": "  Delete a user by id!!</br></br>  <b>Permission= Admin user</b></br>   - Admin can delete all users!</br>  - Other users can't delete any user!</br>",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully deleted!"
+          },
+          "400": {
+            "description": "Bad request - Invalid id type(ObjectId)!"
+          },
+          "404": {
+            "description": "Not found - User not found!"
+          },
+          "500": {
+            "description": "Something went wrong! - asked record is found, but it couldn't be updated!"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Partial Update",
+        "description": "  Partial Update a User by id!</br></br>  <b>Permission= Normal user</b></br>   - Admin users can be update.d just by admin users</br>  - Staff users can be updated by admin or staff users</br>  - Normal users can't update other users</br></br>  - Password type Rules- [lenght:8-16, at least: 1 upper, 1 lower, 1 number, 1 special[@$!%*?&]]</br>  - Email type Rules- --@--.--</br>  - Required fields: - Aat least one of the username,email,password,first_name,last_name,is_active,is_admin,is_staff fields is required!</br>  ",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "One field is enough!",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "username": {
+                  "type": "string",
+                  "example": "testuser"
+                },
+                "email": {
+                  "type": "string",
+                  "example": "testuser@email.com"
+                },
+                "password": {
+                  "type": "string",
+                  "example": "Password1*"
+                },
+                "first_name": {
+                  "type": "string",
+                  "example": "firstname"
+                },
+                "last_name": {
+                  "type": "string",
+                  "example": "lastname"
+                },
+                "is_active": {
+                  "type": "boolean",
+                  "example": true
+                },
+                "is_admin": {
+                  "type": "boolean",
+                  "example": false
+                },
+                "is_staff": {
+                  "type": "boolean",
+                  "example": false
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successfully partiqally updated!",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "boolean",
+                  "example": false
+                },
+                "message": {
+                  "type": "string",
+                  "example": "User is partially updated!!"
+                },
+                "result": {
+                  "$ref": "#/definitions/User"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request    </br>- Invalid id type(ObjectId)!   </br>- username,email,password fields are required!   </br>- Staff users can't modify the admin users!   </br>- Staff users can't modify other staff users except himself!   </br>- Normal users can't modify other users!      "
+          },
+          "404": {
+            "description": "Not found - User not found!"
+          },
+          "500": {
+            "description": "Something went wrong! - asked record is found, but it couldn't be updated!"
+          }
+        }
+      }
+    },
+    "/tokens/": {
+      "get": {
         "description": "",
         "responses": {
           "default": {
@@ -58,68 +480,199 @@
         }
       }
     },
-    "/users/{id}": {
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Login",
+        "description": "  Login with username/email and password!</br></br>  <b>Permission= No Permission</b></br></br>  - Password type Rules- [lenght:8-16, at least: 1 upper, 1 lower, 1 number, 1 special[@$!%*?&]]</br>  - Email type Rules- --@--.--</br>  - Required fields: - username or email,password</br>  ",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "username": {
+                  "type": "string",
+                  "example": "username"
+                },
+                "email": {
+                  "type": "string",
+                  "example": "email@email.com"
+                },
+                "password": {
+                  "type": "string",
+                  "example": "Password1*"
+                }
+              },
+              "required": [
+                "username",
+                "email",
+                "password"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully Logined!",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "boolean",
+                  "example": false
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Login is OK!"
+                },
+                "result": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string",
+                      "example": "tokenkey"
+                    },
+                    "bearer": {
+                      "type": "object",
+                      "properties": {
+                        "accessToken": {
+                          "type": "string",
+                          "example": "access token"
+                        },
+                        "refreshToken": {
+                          "type": "string",
+                          "example": "refresh token"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - email or username and password fields are required!"
+          },
+          "401": {
+            "description": "Unauthorized:    </br>- User not found!   </br>- Your account is not active - please contact with support!   </br>- Invalid password!   "
+          }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Refresh token",
+        "description": "  Refresh the access token with refresh token!</br></br>   <b>Permission= No Permission</b></br></br>  - Required fields: - bearer. refresh Token</br>  ",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "bearer": {
+                  "type": "object",
+                  "properties": {
+                    "refresh Token": {
+                      "type": "string",
+                      "example": "...refresh token"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully  !",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "boolean",
+                  "example": false
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Access token is  !!"
+                },
+                "result": {
+                  "type": "object",
+                  "properties": {
+                    "bearer": {
+                      "type": "object",
+                      "properties": {
+                        "accessToken": {
+                          "type": "string",
+                          "example": "access token"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - bearer.refreshToken is a required field!"
+          },
+          "401": {
+            "description": "Unauthorized:    </br>- Unauhtorized - Invalid signature - invalid token or token is expired!!   </br>- User not found!   </br>- Invalid password!   "
+          }
+        }
+      }
+    },
+    "/auth/logout": {
       "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
+        "tags": [
+          "Authentication"
         ],
+        "summary": "Logout",
+        "description": "  Logout with with token or with out token!</br></br>  <b>Permission= No Permission</b></br></br>  ",
         "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      },
-      "put": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      },
-      "delete": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      },
-      "patch": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "Successfully Logged out!",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "boolean",
+                  "example": false
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Logout is OK!"
+                },
+                "result": {
+                  "type": "object",
+                  "properties": {
+                    "deletedToken": {
+                      "type": "number",
+                      "example": 1
+                    }
+                  }
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
           }
         }
       }

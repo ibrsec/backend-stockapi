@@ -10,6 +10,9 @@ const uniqueValidator = require("mongoose-unique-validator");
 
 const invalidPasswordMessage =
   "Invalid password type Rules- [lenght:8-16, at least: 1 upper, 1 lower, 1 number, 1 special[@$!%*?&]]";
+
+
+
 const UserSchema = new mongoose.Schema({
   username: {
     type: String,
@@ -33,6 +36,7 @@ const UserSchema = new mongoose.Schema({
     required: true,
     set: (password) => {
       if (passwordValidation(password)) {
+        
         return passwordEncryptor(password);
       } else {
         return invalidPasswordMessage;
@@ -41,6 +45,7 @@ const UserSchema = new mongoose.Schema({
     validate: [
       (password) => {
         if (password === invalidPasswordMessage) {
+          
           return false;
         } else {
           return true;
