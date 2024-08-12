@@ -30,18 +30,18 @@ module.exports.user = {
 
     //restrict listing user to non admin users = they wont see the admins
 
-    const customFilters = { is_admin: false, is_staff: false };
+    let customFilters = { is_admin: false, is_staff: false };
     if (req.user?.is_admin) {
-      customFilters = {};
+      customFilters = {}; 
     } else if (req?.user?.is_staff) {
-      customFilters = { is_admin: false, is_staff: true };
+      customFilters = { is_admin: false };
     }
 
-    const users = await res.getModelList(User /* ,customfilters */);
+    const users = await res.getModelList(User  , customFilters );
     res.status(200).json({
       error: false,
       message: "Users are listed!",
-      details: await res.getModelListDetails(User /* ,customfilters */),
+      details: await res.getModelListDetails(User  , customFilters ),
       result: users,
     });
   },
@@ -50,7 +50,7 @@ module.exports.user = {
             #swagger.tags = ["Users"]
             #swagger.summary = "Create new User"
             #swagger.description = `
-                List all users!</br></br>
+                create a new user!</br></br>
                 <b>Permission= No Permission</b></br> 
                 - Admin or staff or in-active users can be create.d just by admin users</br></br>
                 - Password type Rules- [lenght:8-16, at least: 1 upper, 1 lower, 1 number, 1 special[@$!%*?&]]</br>
@@ -155,7 +155,7 @@ module.exports.user = {
     }
 
     //ath bitince sil ->
-    customFilters = {};
+    // customFilters = {};
 
     const user = await User.findOne({ _id: req.params.id, ...customFilters });
 
@@ -176,9 +176,9 @@ module.exports.user = {
             #swagger.description = `
                 Update a User by id!</br></br>
                 <b>Permission= Normal user</b></br> 
-                - Admin users can be update.d just by admin users</br>
-                - Staff users can be updated by admin or staff users</br>
-                - Normal users can't update other users</br></br>
+                - Admin users can be update.d just by admin users</br> 
+                - Other users can update theirselves</br>
+                - Admin, staff or active modifications are accessible for just the admin users!</br> </br>
                 - Password type Rules- [lenght:8-16, at least: 1 upper, 1 lower, 1 number, 1 special[@$!%*?&]]</br>
                 - Email type Rules- --@--.--</br>
                 - Required fields: - username,email,password</br>
@@ -212,10 +212,7 @@ module.exports.user = {
                 description:`Bad request 
                     </br>- Invalid id type(ObjectId)!
                     </br>- username,email,password fields are required!
-                    </br>- Staff users can't modify the admin users!
-                    </br>- Staff users can\'t modify other staff users except himself!
-                    </br>- Normal users can\'t modify other users!
-                    
+                    </br>- non-admin users can't modify other users!
                     `
             }
             #swagger.responses[404] = {
@@ -258,7 +255,7 @@ module.exports.user = {
       //admin user can modify all users!
 
     } else if (req.user?.is_staff) {
-      //staff user is request owner
+      //staff user is request own user modification
       if (user?.is_admin) {
         //if staff try to modify admin
         throw new CustomError("Staff users can't modify the admin users!", 400);
@@ -282,6 +279,13 @@ module.exports.user = {
       }
     }
 
+    /*-----------------*/
+
+    if(!req?.user?.is_admin){ 
+      if (req.user?._id != req.params.id) {
+        throw new CustomError("non-admin users can't modify other users!", 400);
+      }
+    }
 
 
     //admin staff or active modifications are accessible for just the admin users!
@@ -291,7 +295,6 @@ module.exports.user = {
       req.body.is_staff = user?.is_staff;
       req.body.is_active = user?.is_active;
     }
-    /*-----------------*/
 
     const { modifiedCount } = await User.updateOne(
       { _id: req.params.id },
@@ -320,8 +323,8 @@ module.exports.user = {
                 Partial Update a User by id!</br></br>
                 <b>Permission= Normal user</b></br> 
                 - Admin users can be update.d just by admin users</br>
-                - Staff users can be updated by admin or staff users</br>
-                - Normal users can't update other users</br></br>
+                - Other users can update theirselves</br>
+                - Admin, staff or active modifications are accessible for just the admin users!</br> </br>
                 - Password type Rules- [lenght:8-16, at least: 1 upper, 1 lower, 1 number, 1 special[@$!%*?&]]</br>
                 - Email type Rules- --@--.--</br>
                 - Required fields: - Aat least one of the username,email,password,first_name,last_name,is_active,is_admin,is_staff fields is required!</br>
@@ -356,9 +359,7 @@ module.exports.user = {
                 description:`Bad request 
                     </br>- Invalid id type(ObjectId)!
                     </br>- username,email,password fields are required!
-                    </br>- Staff users can't modify the admin users!
-                    </br>- Staff users can\'t modify other staff users except himself!
-                    </br>- Normal users can\'t modify other users!
+                    </br>- non-admin users can't modify other users!
                     
                     `
             }
@@ -428,6 +429,14 @@ module.exports.user = {
 
 
 
+    /*-----------------*/
+    if(!req?.user?.is_admin){
+      if (req.user?._id != req.params.id) {
+        throw new CustomError("non-admin users can't modify other users!", 400);
+      }
+    }
+
+
     //admin staff or active modifications are accessible for just the admin users!
     if (!req?.user?.is_admin) {
       //if user is not a admin user!
@@ -435,7 +444,6 @@ module.exports.user = {
       req.body.is_staff = user?.is_staff;
       req.body.is_active = user?.is_active;
     }
-    /*-----------------*/
 
     const { modifiedCount } = await User.updateOne(
       { _id: req.params.id },

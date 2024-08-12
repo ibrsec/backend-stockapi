@@ -2,21 +2,21 @@
 
 
 const router = require("express").Router();
-const { user } = require("../controllers/userController");
+const { brand } = require("../controllers/brandController");
 const permissions = require('../middlewares/permissions');
 /* ------------------------------------ k ----------------------------------- */
 
 router
     .route("/")
-        .get(permissions.isLogin, user.list)
-        .post( user.create);
+        .get(permissions.isLogin, brand.list)
+        .post(permissions.isLogin, brand.create);
 
 router
   .route("/:id")
-    .get(permissions.isLogin, user.read)
-    .put(permissions.isLogin, user.update)
-    .patch(permissions.isLogin, user.partialUpdate)
-    .delete(permissions.isAdmin, user.delete);
+    .get(permissions.isLogin, brand.read)
+    .put(permissions.isLogin, brand.update)
+    .patch(permissions.isLogin, brand.partialUpdate)
+    .delete(permissions.isLogin, brand.delete);
 
 /* ------------------------------------ k ----------------------------------- */
 module.exports = router;

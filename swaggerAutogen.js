@@ -41,6 +41,10 @@ const document = {
   definitions: {
     User: require("./src/models/userModel").User.schema.obj,
     Token: require("./src/models/tokenModel").Token.schema.obj,
+    Firm: require("./src/models/firmModel").Firm.schema.obj,
+    Category: require("./src/models/categoryModel").Category.schema.obj,
+    Brand: require("./src/models/brandModel").Brand.schema.obj,
+    Product: require("./src/models/productModel").Product.schema.obj,
     // Car: require("./src/models/carModel").Car.schema.obj,
     // Reservation: require("./src/models/reservationModel").Reservation.schema.obj,
     Error: {

@@ -3,19 +3,20 @@
 
 const router = require("express").Router();
 const { token } = require("../controllers/tokenController");
+const permissions = require('../middlewares/permissions');
 /* ------------------------------------ k ----------------------------------- */
 
 router
     .route("/")
-        .get(token.list)
-        .post(token.create);
+        .get(permissions.isAdmin, token.list)
+        .post(permissions.isAdmin, token.create);
 
 router
   .route("/:id")
-    .get(token.read)
-    .put(token.update)
-    .patch(token.partialUpdate)
-    .delete(token.delete);
+    .get(permissions.isAdmin, token.read)
+    .put(permissions.isAdmin, token.update)
+    .patch(permissions.isAdmin, token.partialUpdate)
+    .delete(permissions.isAdmin, token.delete);
 
 /* ------------------------------------ k ----------------------------------- */
 module.exports = router;

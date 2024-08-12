@@ -161,6 +161,7 @@ module.exports.auth = {
             #swagger.responses[401] = {
             description:`Unauthorized: 
                     </br>- Unauhtorized - Invalid signature - invalid token or token is expired!!
+                    </br>- Unauhtorized - Your account is not active - please contact with support!!!
                     </br>- User not found!
                     </br>- Invalid password!
                     `
@@ -192,6 +193,12 @@ module.exports.auth = {
     if(!user){
 
         throw new CustomError( "Unauhtorized - User not found!",401);
+    }
+    if (!user?.is_active) {
+      throw new CustomError(
+        "Unauthorized - Your account is not active - please contact with support!",
+        401
+      );
     }
 
     if(user?.password!==decodedData?.password){
@@ -249,7 +256,8 @@ module.exports.auth = {
 
 
         */
-    const { deletedCount } = await Token.deleteOne({ _id: req?.user?._id });
+    const { deletedCount } = await Token.deleteOne({ user_id: req?.user?._id });
+
 
     res.json({
       error: false,
