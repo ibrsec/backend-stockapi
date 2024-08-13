@@ -17,8 +17,7 @@ const ProductSchema = new mongoose.Schema(
     },
     quantity: {
       type: Number, 
-      default: 0,
-      max:1000000,   
+      default: 0,   
     },
     category_id:{
       type: mongoose.Schema.Types.ObjectId,

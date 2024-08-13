@@ -4,11 +4,14 @@ const { mongoose } = require("../configs/dbConnection");
 const CustomError = require("../errors/customError");
 const { Brand } = require("../models/brandModel");
 const { Category } = require("../models/categoryModel");
-const { Purchase } = require("../models/purchaseModel"); 
+const { Firm } = require("../models/firmModel");
+const { Product } = require("../models/productModel");
+const { Purchase } = require("../models/purchaseModel");
+const { User } = require("../models/userModel");
 
 module.exports.purchase = {
   list: async (req, res) => {
-     /*
+    /*
             #swagger.tags = ["Purchases"]
             #swagger.summary = "List Purchases"
             #swagger.description = `
@@ -27,9 +30,11 @@ module.exports.purchase = {
 
         */
 
-    const purchases = await res.getModelList(Purchase,{},[
-      {path:'category_id', select: '_id name '},
-      {path:'brand_id', select: '_id name image'},
+    const purchases = await res.getModelList(Purchase, {}, [
+      "product_id",
+      "brand_id",
+      "firm_id",
+      "user_id",
     ]);
     res.status(200).json({
       error: false,
@@ -44,20 +49,19 @@ module.exports.purchase = {
             #swagger.summary = "Create new purchase"
             #swagger.description = `
                 Create a new purchase!</br></br>
-                <b>Permission= Loginned User</b></br> 
-                - Purchase name should have a unique value</br>
-                - name field Max Length:100</br>
-                - category_id should exist on categories</br>
-                - brand_id should exist on brands</br>
+                <b>Permission= Loginned User</b></br>   
+                - product_id should exist on products</br> 
+                - firm_id should exist on firms</br>
                  </br>
             `
             #swagger.parameters['body']={
                 in:'body',
                 required:true,
                 schema:{
-                    $name : 'newPurchaseName',
-                    $category_id: '66b9fddcc29ab216e263b04f',
-                    $brand_id: '66b9f845453a084e04ef28ff',
+                    $product_id : '66b9fddcc29ab216e263b04f', 
+                    $firm_id: '66b9fddcc29ab216e263b04f', 
+                    $quantity: 150,
+                    $price: 50,
                 }
             }
             #swagger.responses[201] = {
@@ -71,37 +75,69 @@ module.exports.purchase = {
         }  
             #swagger.responses[400] = {
             description:`Bad request:
-                          </br> - name, category_id, brand_id fields are required!
-                          </br> - Invalid category_id, brand_id type(ObjectId)!
+                          </br> - product_id, firm_id, price, quantity fields are required!
+                          </br> - Invalid brand_id, firm_id, user_id, product_id type(ObjectId)!
                         `
             }
             #swagger.responses[404] = {
             description:`Not found:
-                          </br> - Category not found on categories!
+                          </br> - Product not found on categories!
                           </br> - Brand not found on brands!
+                          </br> - Firm not found on brands!
+                          </br> - User not found on brands!
                         `
             }
 
 
 
         */
-    const { name, category_id, brand_id} = req.body;
+    const { product_id, firm_id, price, quantity } = req.body;
 
-    if (!name || !category_id || !brand_id ) {
-      throw new CustomError("name, category_id, brand_id fields are required!", 400);
+    if (!product_id || !firm_id || !price || !quantity) {
+      throw new CustomError(
+        "product_id, firm_id, price, quantity fields are required!",
+        400
+      );
     }
 
-
-
-    //check category and brand
-    if (!mongoose.Types.ObjectId.isValid(category_id)) {
-      throw new CustomError("Invalid category_id type(ObjectId)!", 400);
+    //check product, user, firm and brand
+    if (!mongoose.Types.ObjectId.isValid(product_id)) {
+      throw new CustomError("Invalid product_id type(ObjectId)!", 400);
     }
 
-    const category = await Category.findOne({ _id: category_id });
-    if (!category) {
-      throw new CustomError("Category not found on categories!", 404);
+    const product = await Product.findOne({ _id: product_id });
+    if (!product) {
+      throw new CustomError("Product not found on products!", 404);
     }
+
+    if (!mongoose.Types.ObjectId.isValid(firm_id)) {
+      throw new CustomError("Invalid firm_id type(ObjectId)!", 400);
+    }
+
+    const firm = await Firm.findOne({ _id: firm_id });
+    if (!firm) {
+      throw new CustomError("Firm not found on firms!", 404);
+    }
+
+    //---
+
+    //user_id comes from req user
+    req.body.user_id = req.user?._id;
+
+    //brand_id comes from product's brand_id
+    req.body.brand_id = product?.brand_id;
+
+    const { user_id, brand_id } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(user_id)) {
+      throw new CustomError("Invalid user_id type(ObjectId)!", 400);
+    }
+
+    const user = await User.findOne({ _id: user_id });
+    if (!user) {
+      throw new CustomError("User not found on users!", 404);
+    }
+
     if (!mongoose.Types.ObjectId.isValid(brand_id)) {
       throw new CustomError("Invalid brand_id type(ObjectId)!", 400);
     }
@@ -111,9 +147,14 @@ module.exports.purchase = {
       throw new CustomError("Brand not found on brands!", 404);
     }
 
-
-
     const newPurchase = await Purchase.create(req.body);
+    // increase the product quantity
+    const updateProductQuantity = await Product.updateOne(
+      { _id: product_id },
+      { quantity: product.quantity + req.body.quantity },
+      { runValidators: true }
+    );
+
     res.status(201).json({
       error: false,
       message: "A new purchase is created!",
@@ -155,8 +196,10 @@ module.exports.purchase = {
     }
 
     const purchase = await Purchase.findOne({ _id: req.params.id }).populate([
-      {path:'category_id', select: '_id name '},
-      {path:'brand_id', select: '_id name image'},
+      "product_id",
+      "brand_id",
+      "firm_id",
+      "user_id",
     ]);
 
     if (!purchase) {
@@ -176,19 +219,17 @@ module.exports.purchase = {
             #swagger.description = `
                 Update a new purchase by id!</br></br>
                 <b>Permission= Loginned User</b></br> 
-                - Purchase name should have a unique value</br>
-                - name field Max Length:100</br>
-                - category_id should exist on categories</br>
-                - brand_id should exist on brands</br>
+                - product_id can't be update.d</br> 
+                - firm_id should exist on firms</br>
                   </br>
             `
             #swagger.parameters['body']={
                 in:'body',
                 required:true,
                 schema:{
-                    $name : 'newPurchaseName',
-                    $category_id: '66b9fddcc29ab216e263b04f',
-                    $brand_id: '66b9f845453a084e04ef28ff',
+                    $firm_id: '66b9fddcc29ab216e263b04f', 
+                    $quantity: 150,
+                    $price: 50,
                 }
             }
             #swagger.responses[201] = {
@@ -202,15 +243,16 @@ module.exports.purchase = {
         }  
             #swagger.responses[400] = {
             description:`Bad request: 
-                      </br>- name, category_id, brand_id fields are required!
-                      </br> - Invalid param id, category_id, brand_id type(ObjectId)!
+                      </br>-firm_id, price, quantity fields are required!
+                      </br> - Invalid param id, brand_id, firm_id, user_id, product_id type(ObjectId)!
                       `
             }
             #swagger.responses[404] = {
             description:`Not found: 
-                      </br>- Purchase not found! 
-                      </br> - Category not found on categories!
+                      </br>- Purchase not found!  
                       </br> - Brand not found on brands!
+                      </br> - Firm not found on brands!
+                      </br> - User not found on brands!
                       `
             }
             #swagger.responses[500] = {
@@ -223,30 +265,62 @@ module.exports.purchase = {
         */
 
 
+//update de product id degisirse -> yapialcak islemler neler olsun
+          //  - product id degisirse ->  bence prodct id update edilemesin,
+          // cunku ozaman quantity isleri biraz sacmalasiyor.
+          // product id yi update etmeyi yasaklarsam is suan cozuluyor,
+          //parital updatedede ayn sekilde 
+
+
+
+
+
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       throw new CustomError("Invalid param id type(ObjectId)!", 400);
     }
 
-    const { name, category_id, brand_id} = req.body;
+    const {  firm_id, price, quantity } = req.body;
 
-    if (!name || !category_id || !brand_id) {
-      throw new CustomError("name, category_id, brand_id fields are required!", 400);
+    if (!firm_id || !price || !quantity) {
+      throw new CustomError(
+        "firm_id, price, quantity fields are required!",
+        400
+      );
     }
 
+    //check user, firm and brand
 
 
-
-    //check category and brand
-    if (!mongoose.Types.ObjectId.isValid(category_id)) {
-      throw new CustomError("Invalid category_id type(ObjectId)!", 400);
+    if (!mongoose.Types.ObjectId.isValid(firm_id)) {
+      throw new CustomError("Invalid firm_id type(ObjectId)!", 400);
     }
 
-    const category = await Category.findOne({ _id: category_id });
-    if (!category) {
-      throw new CustomError("Category not found on categories!", 404);
+    const firm = await Firm.findOne({ _id: firm_id });
+    if (!firm) {
+      throw new CustomError("Firm not found on firms!", 404);
     }
+
+    //---
+
+    //user_id comes from req user
+    req.body.user_id = req.user?._id;
+
+
+
+
+    const { user_id, brand_id } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(user_id)) {
+      throw new CustomError("Invalid user_id type(ObjectId)!", 400);
+    }
+
+    const user = await User.findOne({ _id: user_id });
+    if (!user) {
+      throw new CustomError("User not found on users!", 404);
+    }
+
     if (!mongoose.Types.ObjectId.isValid(brand_id)) {
-      throw new CustomError("Invalid category_id type(ObjectId)!", 400);
+      throw new CustomError("Invalid brand_id type(ObjectId)!", 400);
     }
 
     const brand = await Brand.findOne({ _id: brand_id });
@@ -254,14 +328,25 @@ module.exports.purchase = {
       throw new CustomError("Brand not found on brands!", 404);
     }
 
-
-
     const purchaseData = await Purchase.findOne({ _id: req.params.id });
     if (!purchaseData) {
       throw new CustomError("Purchase not found", 404);
     }
 
-    
+
+    const product = await Product.findOne({ _id: purchaseData?.product_id });
+    if (!product) {
+      throw new CustomError("Product not found on products!", 404);
+    }
+    const product_id = product?._id;
+
+    //brand_id comes from product's brand_id
+    req.body.brand_id = product?.brand_id;
+    delete req.body.product_id;
+
+
+
+    const oldQuantity = purchaseData?.quantity;
 
     const { modifiedCount } = await Purchase.updateOne(
       { _id: req.params.id },
@@ -275,35 +360,40 @@ module.exports.purchase = {
         500
       );
     }
+    const updatedPurchase = await Purchase.findOne({ _id: req.params.id });
+
+    const newQuantity = updatedPurchase?.quantity;
+    const updateQuantityofProduct = await Product.updateOne(
+      { _id: product_id },
+      { quantity: product.quantity + (newQuantity - oldQuantity) }
+    );
 
     res.status(202).json({
       error: false,
       message: "Purchase is updated!",
-      result: await Purchase.findOne({ _id: req.params.id }),
+      result: updatedPurchase,
     });
   },
   partialUpdate: async (req, res) => {
-
     /*
             #swagger.tags = ["Purchases"]
             #swagger.summary = "Partially Update purchase"
             #swagger.description = `
                 Partially Update a new purchase by id!</br></br>
-                <b>Permission= Loginned User</b></br> 
-                - Purchase name should have a unique value</br>
-                - name field Max Length:100</br>
-                - category_id should exist on categories</br>
-                - brand_id should exist on brands</br>
+                <b>Permission= Loginned User</b></br>  
+                - product_id should exist on products</br> 
+                - firm_id should exist on firms</br>
                   </br>
             `
             #swagger.parameters['body']={
                 in:'body',
-                description:"At least one of the name, category_id, brand_id field is required!",
+                description:"At least one of the product_id, firm_id, price, quantity field is required!",
                 required:true,
                 schema:{
-                    $name : 'newPurchaseName',
-                    $category_id: '66b9fddcc29ab216e263b04f',
-                    $brand_id: '66b9f845453a084e04ef28ff',
+                    product_id : '66b9fddcc29ab216e263b04f', 
+                    firm_id: '66b9fddcc29ab216e263b04f', 
+                    quantity: 150,
+                    price: 50,
 
                 }
             }
@@ -318,13 +408,17 @@ module.exports.purchase = {
         }  
             #swagger.responses[400] = {
             description:`Bad request: 
-                      </br>- name or category_id or brand_id field is required!
-                      </br>- Invalid param id type(ObjectId)!!
+                      </br>- product_id or firm_id or price or quantity field is required!
+                      </br>- Invalid param id, brand_id, firm_id, user_id, product_id type(ObjectId)!!
                       `
             }
             #swagger.responses[404] = {
             description:`Not found: 
                       </br>- Purchase not found! 
+                          </br> - Product not found on categories!
+                          </br> - Brand not found on brands!
+                          </br> - Firm not found on brands!
+                          </br> - User not found on brands!
                       `
             }
 
@@ -339,18 +433,73 @@ module.exports.purchase = {
       throw new CustomError("Invalid id type(ObjectId)!", 400);
     }
 
-    const { name, category_id, brand_id } = req.body;
+    const { product_id, firm_id, price, quantity } = req.body;
 
-    if (!(name || category_id || brand_id) ) {
-      throw new CustomError("name or category_id or brand_id field is required!", 400);
+    if (!(product_id || firm_id || price || quantity)) {
+      throw new CustomError(
+        "product_id or firm_id or price or quantity field is required!",
+        400
+      );
     }
-      
+
+    //check product, user, firm and brand
+    if (product_id) {
+      if (!mongoose.Types.ObjectId.isValid(product_id)) {
+        throw new CustomError("Invalid product_id type(ObjectId)!", 400);
+      }
+
+      const product = await Product.findOne({ _id: product_id });
+      if (!product) {
+        throw new CustomError("Product not found on products!", 404);
+      }
+      //brand_id comes from product's brand_id
+      req.body.brand_id = product?.brand_id;
+    }else{
+
+    }
+
+    if (firm_id) {
+      if (!mongoose.Types.ObjectId.isValid(firm_id)) {
+        throw new CustomError("Invalid firm_id type(ObjectId)!", 400);
+      }
+
+      const firm = await Firm.findOne({ _id: firm_id });
+      if (!firm) {
+        throw new CustomError("Firm not found on firms!", 404);
+      }
+    }
+
+    //---
+
+    //user_id comes from req user
+    req.body.user_id = req.user?._id;
+
+
+    const { user_id, brand_id } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(user_id)) {
+      throw new CustomError("Invalid user_id type(ObjectId)!", 400);
+    }
+
+    const user = await User.findOne({ _id: user_id });
+    if (!user) {
+      throw new CustomError("User not found on users!", 404);
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(brand_id)) {
+      throw new CustomError("Invalid brand_id type(ObjectId)!", 400);
+    }
+
+    const brand = await Brand.findOne({ _id: brand_id });
+    if (!brand) {
+      throw new CustomError("Brand not found on brands!", 404);
+    }
 
     const purchaseData = await Purchase.findOne({ _id: req.params.id });
     if (!purchaseData) {
       throw new CustomError("Purchase not found", 404);
     }
-
+    const oldQuantity = purchaseData?.quantity;
 
     const { modifiedCount } = await Purchase.updateOne(
       { _id: req.params.id },
@@ -365,10 +514,21 @@ module.exports.purchase = {
       );
     }
 
+    const updatedPurchase = await Purchase.findOne({ _id: req.params.id });
+
+    const newQuantity = updatedPurchase?.quantity;
+
+    if (req.body?.quantity) {
+      const updateQuantityofProduct = await Product.updateOne(
+        { _id: product_id },
+        { quantity: product.quantity + (newQuantity - oldQuantity) }
+      );
+    }
+
     res.status(202).json({
       error: false,
       message: "Purchase is partially updated!",
-      result: await Purchase.findOne({ _id: req.params.id }),
+      result: updatedPurchase,
     });
   },
   delete: async (req, res) => {
@@ -421,6 +581,14 @@ module.exports.purchase = {
         500
       );
     }
+
+    const product = await Product.findOne({ _id: purchase?.product_id });
+
+    const deleteProductQuantity = await Product.updateOne(
+      { _id: purchase?.product_id },
+      { quantity: product?.quantity - purchase.quantity }
+    );
+
     res.sendStatus(204);
   },
 };

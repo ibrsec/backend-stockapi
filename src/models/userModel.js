@@ -19,12 +19,14 @@ const UserSchema = new mongoose.Schema({
     trim: true,
     required: true,
     unique: true,
+    index:true,
   },
   email: {
     type: String,
     trim: true,
     required: true,
     unique: true,
+    index:true,
     validate: [
       (email) => emailValidtion(email),
       "Invalid email type, type: __@__.__",
@@ -57,11 +59,13 @@ const UserSchema = new mongoose.Schema({
   first_name:{
     type:String,
     trim:true,
+    required: true,
     
   },
   last_name:{
     type:String,
     trim:true,
+    required: true,
 
   },
   is_active:{

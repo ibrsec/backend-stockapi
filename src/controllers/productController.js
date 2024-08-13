@@ -28,8 +28,8 @@ module.exports.product = {
         */
 
     const products = await res.getModelList(Product,{},[
-      {path:'category_id', select: '_id name '},
-      {path:'brand_id', select: '_id name image'},
+      'category_id',
+      'brand_id',
     ]);
     res.status(200).json({
       error: false,
@@ -44,8 +44,7 @@ module.exports.product = {
             #swagger.summary = "Create new product"
             #swagger.description = `
                 Create a new product!</br></br>
-                <b>Permission= Loginned User</b></br> 
-                - Product name should have a unique value</br>
+                <b>Permission= Loginned User</b></br>  
                 - name field Max Length:100</br>
                 - category_id should exist on categories</br>
                 - brand_id should exist on brands</br>
@@ -55,8 +54,7 @@ module.exports.product = {
                 in:'body',
                 required:true,
                 schema:{
-                    $name : 'newProductName',
-                    quantity : 200,
+                    $name : 'newProductName', 
                     $category_id: '66b9fddcc29ab216e263b04f',
                     $brand_id: '66b9f845453a084e04ef28ff',
                 }
@@ -112,6 +110,7 @@ module.exports.product = {
       throw new CustomError("Brand not found on brands!", 404);
     }
 
+    delete req.body.quantity;
 
 
     const newProduct = await Product.create(req.body);
@@ -257,11 +256,15 @@ module.exports.product = {
 
 
 
+
+    
+    
     const productData = await Product.findOne({ _id: req.params.id });
     if (!productData) {
       throw new CustomError("Product not found", 404);
     }
-
+    
+    // delete req.body.quantity;
     
 
     const { modifiedCount } = await Product.updateOne(
@@ -346,6 +349,27 @@ module.exports.product = {
       throw new CustomError("name or category_id or brand_id field is required!", 400);
     }
       
+
+    //check category and brand
+    if (!mongoose.Types.ObjectId.isValid(category_id)) {
+      throw new CustomError("Invalid category_id type(ObjectId)!", 400);
+    }
+
+    const category = await Category.findOne({ _id: category_id });
+    if (!category) {
+      throw new CustomError("Category not found on categories!", 404);
+    }
+    if (!mongoose.Types.ObjectId.isValid(brand_id)) {
+      throw new CustomError("Invalid category_id type(ObjectId)!", 400);
+    }
+
+    const brand = await Brand.findOne({ _id: brand_id });
+    if (!brand) {
+      throw new CustomError("Brand not found on brands!", 404);
+    }
+
+
+    
 
     const productData = await Product.findOne({ _id: req.params.id });
     if (!productData) {

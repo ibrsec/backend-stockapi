@@ -58,7 +58,7 @@
           "Users"
         ],
         "summary": "Create new User",
-        "description": "  create a new user!</br></br>  <b>Permission= No Permission</b></br>   - Admin or staff or in-active users can be create.d just by admin users</br></br>  - Password type Rules- [lenght:8-16, at least: 1 upper, 1 lower, 1 number, 1 special[@$!%*?&]]</br>  - Email type Rules- --@--.--</br>  - Required fields: - username,email,password</br>  ",
+        "description": "  create a new user!</br></br>  <b>Permission= No Permission</b></br>   - Admin or staff or in-active users can be create.d just by admin users</br></br>  - Password type Rules- [lenght:8-16, at least: 1 upper, 1 lower, 1 number, 1 special[@$!%*?&]]</br>  - Email type Rules- --@--.--</br>  - Required fields: - username, email, password, first_name, last_name</br>  ",
         "parameters": [
           {
             "name": "body",
@@ -103,7 +103,9 @@
               "required": [
                 "username",
                 "email",
-                "password"
+                "password",
+                "first_name",
+                "last_name"
               ]
             }
           }
@@ -132,7 +134,7 @@
             }
           },
           "400": {
-            "description": "Bad request - username,email,password fields are required!"
+            "description": "Bad request - username,email,password, first_name, last_name fields are required!"
           }
         }
       }
@@ -310,7 +312,9 @@
               "required": [
                 "username",
                 "email",
-                "password"
+                "password",
+                "first_name",
+                "last_name"
               ]
             }
           }
@@ -339,7 +343,7 @@
             }
           },
           "400": {
-            "description": "Bad request    </br>- Invalid id type(ObjectId)!   </br>- username,email,password fields are required!   </br>- non-admin users can't modify other users!   "
+            "description": "Bad request    </br>- Invalid id type(ObjectId)!   </br>- username, email, password, first_name, last_name fields are required!   </br>- non-admin users can't modify other users!   "
           },
           "404": {
             "description": "Not found - User not found!"
@@ -383,7 +387,7 @@
           "Users"
         ],
         "summary": "Partial Update",
-        "description": "  Partial Update a User by id!</br></br>  <b>Permission= Normal user</b></br>   - Admin users can be update.d just by admin users</br>  - Other users can update theirselves</br>  - Admin, staff or active modifications are accessible for just the admin users!</br> </br>  - Password type Rules- [lenght:8-16, at least: 1 upper, 1 lower, 1 number, 1 special[@$!%*?&]]</br>  - Email type Rules- --@--.--</br>  - Required fields: - Aat least one of the username,email,password,first_name,last_name,is_active,is_admin,is_staff fields is required!</br>  ",
+        "description": "  Partial Update a User by id!</br></br>  <b>Permission= Normal user</b></br>   - Admin users can be update.d just by admin users</br>  - Other users can update theirselves</br>  - Admin, staff or active modifications are accessible for just the admin users!</br> </br>  - Password type Rules- [lenght:8-16, at least: 1 upper, 1 lower, 1 number, 1 special[@$!%*?&]]</br>  - Email type Rules- --@--.--</br>  - Required fields: - Aat least one of the username, email, password, first_name, last_name, is_active, is_admin, is_staff fields is required!</br>  ",
         "parameters": [
           {
             "name": "id",
@@ -459,7 +463,7 @@
             }
           },
           "400": {
-            "description": "Bad request    </br>- Invalid id type(ObjectId)!   </br>- username,email,password fields are required!   </br>- non-admin users can't modify other users!      "
+            "description": "Bad request    </br>- Invalid id type(ObjectId)!   </br>- At least one field of username, email, password, first_name, last_name,is_active,is_admin,is_staff fields is required!   </br>- non-admin users can't modify other users!      "
           },
           "404": {
             "description": "Not found - User not found!"
@@ -1651,7 +1655,7 @@
           "Products"
         ],
         "summary": "Create new product",
-        "description": "  Create a new product!</br></br>  <b>Permission= Loginned User</b></br>   - Product name should have a unique value</br>  - name field Max Length:100</br>  - category_id should exist on categories</br>  - brand_id should exist on brands</br>   </br>  ",
+        "description": "  Create a new product!</br></br>  <b>Permission= Loginned User</b></br>   - name field Max Length:100</br>  - category_id should exist on categories</br>  - brand_id should exist on brands</br>   </br>  ",
         "parameters": [
           {
             "name": "body",
@@ -1967,6 +1971,346 @@
           }
         }
       }
+    },
+    "/purchases/": {
+      "get": {
+        "tags": [
+          "Purchases"
+        ],
+        "summary": "List Purchases",
+        "description": "  List all purchases!</br></br>  <b>Permission= Loginned user</b></br></br>  You can send query with endpoint for filter[],search[], sort[], page and limit.  <ul> Examples:   <li>URL/?<b>filter[field1]=value1&filter[field2]=value2</b></li>   <li>URL/?<b>search[field1]=value1&search[field2]=value2</b></li>   <li>URL/?<b>sort[field1]=1&sort[field2]=-1</b></li>   <li>URL/?<b>page=2&limit=1</b></li>  </ul>  ",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Purchases"
+        ],
+        "summary": "Create new purchase",
+        "description": "  Create a new purchase!</br></br>  <b>Permission= Loginned User</b></br>   - product_id should exist on products</br>  - user_id should exist on users</br>  - firm_id should exist on firms</br>   </br>  ",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "product_id": {
+                  "type": "string",
+                  "example": "66b9fddcc29ab216e263b04f"
+                },
+                "firm_id": {
+                  "type": "string",
+                  "example": "66b9fddcc29ab216e263b04f"
+                },
+                "quantity": {
+                  "type": "number",
+                  "example": 150
+                },
+                "price": {
+                  "type": "number",
+                  "example": 50
+                }
+              },
+              "required": [
+                "product_id",
+                "firm_id",
+                "quantity",
+                "price"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully  !",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "boolean",
+                  "example": false
+                },
+                "message": {
+                  "type": "string",
+                  "example": "A new purchase is created!!"
+                },
+                "result": {
+                  "$ref": "#/definitions/Purchase"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request:   </br> - product_id, firm_id, price, quantity fields are required!   </br> - Invalid category_id, brand_id, firm_id, user_id type(ObjectId)!   "
+          },
+          "404": {
+            "description": "Not found:   </br> - Product not found on categories!   </br> - Brand not found on brands!   </br> - Firm not found on brands!   </br> - User not found on brands!   "
+          }
+        }
+      }
+    },
+    "/purchases/{id}": {
+      "get": {
+        "tags": [
+          "Purchases"
+        ],
+        "summary": "Get a purchase",
+        "description": "  Get a purchase by id!</br></br>  <b>Permission= Loginned User</b></br></br>  ",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully Found!",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "boolean",
+                  "example": false
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Purchase is found!!"
+                },
+                "result": {
+                  "$ref": "#/definitions/Purchase"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid param id type(ObjectId)!!   "
+          },
+          "404": {
+            "description": "Not found - Purchase not found!    "
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Purchases"
+        ],
+        "summary": "Update purchase",
+        "description": "  Update a new purchase by id!</br></br>  <b>Permission= Loginned User</b></br>   - Purchase name should have a unique value</br>  - name field Max Length:100</br>  - category_id should exist on categories</br>  - brand_id should exist on brands</br>   </br>  ",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "example": "newPurchaseName"
+                },
+                "category_id": {
+                  "type": "string",
+                  "example": "66b9fddcc29ab216e263b04f"
+                },
+                "brand_id": {
+                  "type": "string",
+                  "example": "66b9f845453a084e04ef28ff"
+                }
+              },
+              "required": [
+                "name",
+                "category_id",
+                "brand_id"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully  !",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "boolean",
+                  "example": false
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Purchase is  !!"
+                },
+                "result": {
+                  "$ref": "#/definitions/Purchase"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "202": {
+            "description": "Accepted"
+          },
+          "400": {
+            "description": "Bad request:    </br>- name, category_id, brand_id fields are required!   </br> - Invalid param id, category_id, brand_id type(ObjectId)!   "
+          },
+          "404": {
+            "description": "Not found:    </br>- Purchase not found!    </br> - Category not found on categories!   </br> - Brand not found on brands!   "
+          },
+          "500": {
+            "description": "Something went wrong! - asked record is found, but it couldn't be updated!    "
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Purchases"
+        ],
+        "summary": "Delete a purchase",
+        "description": "  Delete a purchase by id!</br></br>  <b>Permission= Loginned User</b></br></br>  ",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully Deleted!",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "boolean",
+                  "example": false
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Purchase is deleted!!"
+                },
+                "result": {
+                  "$ref": "#/definitions/Purchase"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad request - Invalid param id type(ObjectId)!!   "
+          },
+          "404": {
+            "description": "Not found - Purchase not found!    "
+          },
+          "500": {
+            "description": "Something went wrong! - asked record is found, but it couldn't be updated!    "
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Purchases"
+        ],
+        "summary": "Partially Update purchase",
+        "description": "  Partially Update a new purchase by id!</br></br>  <b>Permission= Loginned User</b></br>   - Purchase name should have a unique value</br>  - name field Max Length:100</br>  - category_id should exist on categories</br>  - brand_id should exist on brands</br>   </br>  ",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "At least one of the name, category_id, brand_id field is required!",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "example": "newPurchaseName"
+                },
+                "category_id": {
+                  "type": "string",
+                  "example": "66b9fddcc29ab216e263b04f"
+                },
+                "brand_id": {
+                  "type": "string",
+                  "example": "66b9f845453a084e04ef28ff"
+                }
+              },
+              "required": [
+                "name",
+                "category_id",
+                "brand_id"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully partially updated!",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "boolean",
+                  "example": false
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Purchase is partially updated!!"
+                },
+                "result": {
+                  "$ref": "#/definitions/Purchase"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "202": {
+            "description": "Accepted"
+          },
+          "400": {
+            "description": "Bad request:    </br>- name or category_id or brand_id field is required!   </br>- Invalid param id type(ObjectId)!!   "
+          },
+          "404": {
+            "description": "Not found:    </br>- Purchase not found!    "
+          },
+          "500": {
+            "description": "Something went wrong! - asked record is found, but it couldn't be updated!    "
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -1990,6 +2334,10 @@
             "unique": {
               "type": "boolean",
               "example": true
+            },
+            "index": {
+              "type": "boolean",
+              "example": true
             }
           }
         },
@@ -2008,6 +2356,10 @@
               "example": true
             },
             "unique": {
+              "type": "boolean",
+              "example": true
+            },
+            "index": {
               "type": "boolean",
               "example": true
             },
@@ -2061,6 +2413,10 @@
             "trim": {
               "type": "boolean",
               "example": true
+            },
+            "required": {
+              "type": "boolean",
+              "example": true
             }
           }
         },
@@ -2071,6 +2427,10 @@
               "type": "function"
             },
             "trim": {
+              "type": "boolean",
+              "example": true
+            },
+            "required": {
               "type": "boolean",
               "example": true
             }
@@ -2406,6 +2766,18 @@
             }
           }
         },
+        "quantity": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "function"
+            },
+            "default": {
+              "type": "number",
+              "example": 0
+            }
+          }
+        },
         "category_id": {
           "type": "object",
           "properties": {
@@ -2435,6 +2807,116 @@
             "required": {
               "type": "boolean",
               "example": true
+            }
+          }
+        }
+      }
+    },
+    "Purchase": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "function"
+            },
+            "ref": {
+              "type": "string",
+              "example": "User"
+            },
+            "required": {
+              "type": "boolean",
+              "example": true
+            }
+          }
+        },
+        "firm_id": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "function"
+            },
+            "ref": {
+              "type": "string",
+              "example": "Firm"
+            },
+            "required": {
+              "type": "boolean",
+              "example": true
+            }
+          }
+        },
+        "brand_id": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "function"
+            },
+            "ref": {
+              "type": "string",
+              "example": "Brand"
+            },
+            "required": {
+              "type": "boolean",
+              "example": true
+            }
+          }
+        },
+        "product_id": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "function"
+            },
+            "ref": {
+              "type": "string",
+              "example": "Product"
+            },
+            "required": {
+              "type": "boolean",
+              "example": true
+            }
+          }
+        },
+        "quantity": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "function"
+            },
+            "required": {
+              "type": "boolean",
+              "example": true
+            }
+          }
+        },
+        "price": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "function"
+            },
+            "required": {
+              "type": "boolean",
+              "example": true
+            }
+          }
+        },
+        "amount": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "function"
+            },
+            "set": {
+              "type": "function"
+            },
+            "default": {
+              "type": "function"
+            },
+            "transform": {
+              "type": "function"
             }
           }
         }

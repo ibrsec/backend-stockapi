@@ -55,7 +55,7 @@ module.exports.user = {
                 - Admin or staff or in-active users can be create.d just by admin users</br></br>
                 - Password type Rules- [lenght:8-16, at least: 1 upper, 1 lower, 1 number, 1 special[@$!%*?&]]</br>
                 - Email type Rules- --@--.--</br>
-                - Required fields: - username,email,password</br>
+                - Required fields: - username, email, password, first_name, last_name</br>
             `
             #swagger.parameters['body']={
                 in:'body',
@@ -64,8 +64,8 @@ module.exports.user = {
                     $username : 'testuser',
                     $email : 'testuser@email.com',
                     $password : 'Password1*',
-                    first_name : 'firstname',
-                    last_name : 'lastname',
+                    $first_name : 'firstname',
+                    $last_name : 'lastname',
                     is_active : true,
                     is_admin : false,
                     is_staff : false,
@@ -82,18 +82,18 @@ module.exports.user = {
 
         }  
             #swagger.responses[400] = {
-            description:`Bad request - username,email,password fields are required!`
+            description:`Bad request - username,email,password, first_name, last_name fields are required!`
             }
 
 
 
         */
 
-    const { username, email, password } = req.body;
+    const { username, email, password, first_name, last_name } = req.body;
 
-    if (!username || !email || !password) {
+    if (!username || !email || !password || !first_name || !last_name) {
       throw new CustomError(
-        "username,email,password fields are required!",
+        "username, email, password, first_name, last_name fields are required!",
         400
       );
     }
@@ -190,8 +190,8 @@ module.exports.user = {
                     $username : 'testuser',
                     $email : 'testuser@email.com',
                     $password : 'Password1*',
-                    first_name : 'firstname',
-                    last_name : 'lastname',
+                    $first_name : 'firstname',
+                    $last_name : 'lastname',
                     is_active : true,
                     is_admin : false,
                     is_staff : false,
@@ -211,7 +211,7 @@ module.exports.user = {
             #swagger.responses[400] = {
                 description:`Bad request 
                     </br>- Invalid id type(ObjectId)!
-                    </br>- username,email,password fields are required!
+                    </br>- username, email, password, first_name, last_name fields are required!
                     </br>- non-admin users can't modify other users!
                     `
             }
@@ -230,11 +230,11 @@ module.exports.user = {
       throw new CustomError("Invalid id type(ObjectId)!", 400);
     }
 
-    const { username, email, password } = req.body;
+    const { username, email, password, first_name, last_name } = req.body;
 
-    if (!username || !email || !password) {
+    if (!username || !email || !password || !first_name || !last_name) {
       throw new CustomError(
-        "username,email,password fields are required!",
+        "username,email,password, first_name, last_name fields are required!",
         400
       );
     }
@@ -327,7 +327,7 @@ module.exports.user = {
                 - Admin, staff or active modifications are accessible for just the admin users!</br> </br>
                 - Password type Rules- [lenght:8-16, at least: 1 upper, 1 lower, 1 number, 1 special[@$!%*?&]]</br>
                 - Email type Rules- --@--.--</br>
-                - Required fields: - Aat least one of the username,email,password,first_name,last_name,is_active,is_admin,is_staff fields is required!</br>
+                - Required fields: - Aat least one of the username, email, password, first_name, last_name, is_active, is_admin, is_staff fields is required!</br>
             `
             #swagger.parameters['body']={
                 in:'body',
@@ -358,7 +358,7 @@ module.exports.user = {
             #swagger.responses[400] = {
                 description:`Bad request 
                     </br>- Invalid id type(ObjectId)!
-                    </br>- username,email,password fields are required!
+                    </br>- At least one field of username, email, password, first_name, last_name,is_active,is_admin,is_staff fields is required!
                     </br>- non-admin users can't modify other users!
                     
                     `
@@ -378,11 +378,11 @@ module.exports.user = {
       throw new CustomError("Invalid id type(ObjectId)!", 400);
     }
 
-    const { username, email, password,first_name,last_name,is_active,is_admin,is_staff } = req.body;
+    const { username, email, password, first_name, last_name, is_active, is_admin, is_staff } = req.body;
 
     if (!(username || email || password || first_name || last_name || is_active || is_admin || is_staff)) {
       throw new CustomError(
-        "At least one field of username, email, password,first_name,last_name,is_active,is_admin,is_staff fields is required!",
+        "At least one field of username, email, password, first_name, last_name,is_active,is_admin,is_staff fields is required!",
         400
       );
     }

@@ -1,7 +1,7 @@
 "use strict";
 
 const { mongoose } = require("../configs/dbConnection");
-const uniqueValidator = require("mongoose-unique-validator");
+// const uniqueValidator = require("mongoose-unique-validator");
 
 
 
@@ -31,7 +31,25 @@ const PurchaseSchema = new mongoose.Schema(
       type:Number,
       required:true,
       
-    }
+    },
+    price:{
+      type:Number,
+      required:true,
+      
+    },
+    amount:{
+      type:Number,
+      set:function(){
+        return this.price * this.quantity;
+      },
+      default:function(){
+        return this.price * this.quantity;
+      },
+      transform:function(){
+        return this.price * this.quantity;
+      },
+      
+    },
   },
   {
     collection: "purchases",
@@ -39,8 +57,8 @@ const PurchaseSchema = new mongoose.Schema(
   }
 );
 
-PurchaseSchema.plugin(uniqueValidator, {
-  message: "This {PATH} is exist!",
-});
+// PurchaseSchema.plugin(uniqueValidator, {
+//   message: "This {PATH} is exist!",
+// });
 
 module.exports.Purchase = mongoose.model("Purchase", PurchaseSchema);
