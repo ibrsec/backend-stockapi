@@ -2,7 +2,7 @@
 
 const { mongoose } = require("../configs/dbConnection");
 const CustomError = require("../errors/customError");
-const { Brand } = require("../models/brandModel"); 
+const { Brand } = require("../models/brandModel");
 const { Firm } = require("../models/firmModel");
 const { Product } = require("../models/productModel");
 const { Purchase } = require("../models/purchaseModel");
@@ -76,6 +76,7 @@ module.exports.purchase = {
             description:`Bad request:
                           </br> - product_id, firm_id, price, quantity fields are required!
                           </br> - Invalid brand_id, firm_id, user_id, product_id type(ObjectId)!
+                          </br> - Invalid quantity - it can\'t be less than 1!
                         `
             }
             #swagger.responses[404] = {
@@ -97,6 +98,9 @@ module.exports.purchase = {
         "product_id, firm_id, price, quantity fields are required!",
         400
       );
+    }
+    if (quantity < 1) {
+      throw new CustomError("Invalid quantity - it can't be less than 1!", 400);
     }
 
     //check product, user, firm and brand
@@ -153,10 +157,15 @@ module.exports.purchase = {
       { quantity: product.quantity + req.body.quantity },
       { runValidators: true }
     );
+    let modifyMessage = "";
+    if (updateProductQuantity?.modifiedCount < 1) {
+      modifyMessage +=
+        " - Something went wrong: Purchase is created but product couldn't be updated!";
+    }
 
     res.status(201).json({
       error: false,
-      message: "A new purchase is created!",
+      message: "A new purchase is created!" + modifyMessage,
       result: newPurchase,
     });
   },
@@ -245,6 +254,7 @@ module.exports.purchase = {
             description:`Bad request: 
                       </br>-product_id, firm_id, price, quantity fields are required!
                       </br> - Invalid param id, brand_id, firm_id, user_id, product_id type(ObjectId)!
+                      </br> - Invalid quantity - it can\'t be less than 1!
                       `
             }
             #swagger.responses[404] = {
@@ -276,6 +286,10 @@ module.exports.purchase = {
         "product_id, firm_id, price, quantity fields are required!",
         400
       );
+    }
+
+    if (quantity < 1) {
+      throw new CustomError("Invalid quantity - it can't be less than 1!", 400);
     }
 
     //check user, firm and brand
@@ -350,6 +364,7 @@ module.exports.purchase = {
     const updatedPurchase = await Purchase.findOne({ _id: req.params.id });
 
     const newQuantity = updatedPurchase?.quantity;
+    let modifyMessage = "";
 
     //update de product id degisirse -> yapialcak islemler neler olsun
     if (purchaseData?.product_id != product_id) {
@@ -359,26 +374,42 @@ module.exports.purchase = {
       const oldProduct = await Product.findOne({
         _id: purchaseData?.product_id,
       });
+      //delete old products quantity
       const oldProductUpdateQuantity = await Product.updateOne(
         { _id: purchaseData?.product_id },
         { quantity: oldProduct.quantity - oldQuantity },
         { runValidators: true }
       );
 
+      if (oldProductUpdateQuantity?.modifiedCount < 1) {
+        modifyMessage +=
+          " - Something went wrong: Purchase is updated but old product couldn't be updated!";
+      }
+      //add quantity to new product
       const updateQuantityofProduct = await Product.updateOne(
         { _id: product_id },
-        { quantity: product.quantity + quantity }
+        { quantity: product.quantity + updatedPurchase?.quantity }
       );
+
+      if (updateQuantityofProduct?.modifiedCount < 1) {
+        modifyMessage +=
+          " - Something went wrong: Purchase is updated but new product couldn't be updated!";
+      }
     } else {
       const updateQuantityofProduct = await Product.updateOne(
         { _id: product_id },
         { quantity: product.quantity + (newQuantity - oldQuantity) }
       );
+
+      if (updateQuantityofProduct?.modifiedCount < 1) {
+        modifyMessage +=
+          " - Something went wrong: Purchase is created but product couldn't be updated!";
+      }
     }
 
     res.status(202).json({
       error: false,
-      message: "Purchase is updated!",
+      message: "Purchase is updated!" + modifyMessage,
       result: updatedPurchase,
     });
   },
@@ -418,6 +449,7 @@ module.exports.purchase = {
             description:`Bad request: 
                       </br>- product_id or firm_id or price or quantity field is required!
                       </br>- Invalid param id, brand_id, firm_id, user_id, product_id type(ObjectId)!!
+                      </br>- Invalid quantity - it can\'t be less than 1!
                       `
             }
             #swagger.responses[404] = {
@@ -448,6 +480,10 @@ module.exports.purchase = {
         "product_id or firm_id or price or quantity field is required!",
         400
       );
+    }
+
+    if (quantity && quantity < 1) {
+      throw new CustomError("Invalid quantity - it can't be less than 1!", 400);
     }
 
     //check product, user, firm and brand
@@ -531,9 +567,12 @@ module.exports.purchase = {
     });
 
     const newQuantity = updatedPurchase?.quantity;
+    let modifyMessage = "";
+
 
     //update de product id degisirse -> yapialcak islemler neler olsun
-    if (product_id) {// if product id is not null
+    if (product_id) {
+      // if product id is not null
       if (purchaseData?.product_id != product_id) {
         //product id degisirseek eski olandan quantity cikarilacak yeni olana eklenecek
         //quantityde degisirse eski quantity eski productan cikacak, yeni quantity yeni producta eklenecek!
@@ -544,15 +583,30 @@ module.exports.purchase = {
           { runValidators: true }
         );
 
+        if (oldProductUpdateQuantity?.modifiedCount < 1) {
+          modifyMessage +=
+            " - Something went wrong: Purchase is updated but old product couldn't be updated!";
+        }
+
         const updateQuantityofProduct = await Product.updateOne(
           { _id: product_id },
           { quantity: product.quantity + updatedPurchase?.quantity }
         );
+        if (updateQuantityofProduct?.modifiedCount < 1) {
+          modifyMessage +=
+            " - Something went wrong: Purchase is updated but new product couldn't be updated!";
+        }
+
+
       } else {
         const updateQuantityofProduct = await Product.updateOne(
           { _id: product_id },
           { quantity: product.quantity + (newQuantity - oldQuantity) }
         );
+        if (updateQuantityofProduct?.modifiedCount < 1) {
+          modifyMessage +=
+            " - Something went wrong: Purchase is updated but product couldn't be updated!";
+        }
       }
     } else {
       //if product_id is null
@@ -560,12 +614,15 @@ module.exports.purchase = {
         { _id: purchaseData?.product_id },
         { quantity: oldProduct.quantity + (newQuantity - oldQuantity) }
       );
+      if (updateQuantityofProduct?.modifiedCount < 1) {
+        modifyMessage +=
+          " - Something went wrong: Purchase is updated but product couldn't be updated!";
+      }
     }
-
 
     res.status(202).json({
       error: false,
-      message: "Purchase is partially updated!",
+      message: "Purchase is partially updated!"+modifyMessage,
       result: updatedPurchase,
     });
   },
@@ -611,6 +668,13 @@ module.exports.purchase = {
     if (!purchase) {
       throw new CustomError("Purchase not found!", 404);
     }
+    
+    const product = await Product.findOne({ _id: purchase?.product_id });
+    
+    // if(product?.quantity < purchase?.quantity){
+    //   throw new CustomError(`Insufficient product quantity! - product quantity:${product?.quantity}, sale quantity :${quantity}`, 404);
+
+    // }
 
     const { deletedCount } = await Purchase.deleteOne({ _id: req.params.id });
     if (deletedCount < 1) {
@@ -620,13 +684,15 @@ module.exports.purchase = {
       );
     }
 
-    const product = await Product.findOne({ _id: purchase?.product_id });
 
     const deleteProductQuantity = await Product.updateOne(
       { _id: purchase?.product_id },
       { quantity: product?.quantity - purchase.quantity }
     );
-
+    // let modifyMessage = "";
+    //   if(deleteProductQuantity.modifiedCount< 1){
+    //     modifyMessage = "Something went wrong: Purchase is deleted but product couldn't be updated!"
+    //   }
     res.sendStatus(204);
   },
 };

@@ -9,6 +9,8 @@ module.exports = async () => {
       username: "adminuser",
       email: "adminuser@adminuser.com",
       password: "Aa*12345",
+      first_name: "adminfirst",
+      last_name: "adminlast",
       is_active: true,
       is_admin: true,
       is_staff: false,

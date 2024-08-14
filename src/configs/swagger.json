@@ -13,7 +13,7 @@
       "email": "ibr.seckin@gmail.com"
     }
   },
-  "host": "localhost:8000",
+  "host": "backend-stockapi-express.vercel.app",
   "basePath": "/",
   "schemes": [
     "https",
@@ -2049,7 +2049,7 @@
             }
           },
           "400": {
-            "description": "Bad request:   </br> - product_id, firm_id, price, quantity fields are required!   </br> - Invalid brand_id, firm_id, user_id, product_id type(ObjectId)!   "
+            "description": "Bad request:   </br> - product_id, firm_id, price, quantity fields are required!   </br> - Invalid brand_id, firm_id, user_id, product_id type(ObjectId)!   </br> - Invalid quantity - it can't be less than 1!   "
           },
           "404": {
             "description": "Not found:   </br> - Product not found on products!   </br> - Brand not found on brands!   </br> - Firm not found on brands!   </br> - User not found on brands!   "
@@ -2176,7 +2176,7 @@
             "description": "Accepted"
           },
           "400": {
-            "description": "Bad request:    </br>-product_id, firm_id, price, quantity fields are required!   </br> - Invalid param id, brand_id, firm_id, user_id, product_id type(ObjectId)!   "
+            "description": "Bad request:    </br>-product_id, firm_id, price, quantity fields are required!   </br> - Invalid param id, brand_id, firm_id, user_id, product_id type(ObjectId)!   </br> - Invalid quantity - it can't be less than 1!   "
           },
           "404": {
             "description": "Not found:    </br>- Purchase not found!    </br> - Product not found on products!   </br> - Brand not found on brands!   </br> - Firm not found on brands!   </br> - User not found on brands!   "
@@ -2305,10 +2305,340 @@
             "description": "Accepted"
           },
           "400": {
-            "description": "Bad request:    </br>- product_id or firm_id or price or quantity field is required!   </br>- Invalid param id, brand_id, firm_id, user_id, product_id type(ObjectId)!!   "
+            "description": "Bad request:    </br>- product_id or firm_id or price or quantity field is required!   </br>- Invalid param id, brand_id, firm_id, user_id, product_id type(ObjectId)!!   </br>- Invalid quantity - it can't be less than 1!   "
           },
           "404": {
             "description": "Not found:    </br>- Purchase not found!    </br> - Product not found on products!   </br> - Brand not found on brands!   </br> - Firm not found on brands!   </br> - User not found on brands!   "
+          },
+          "500": {
+            "description": "Something went wrong! - asked record is found, but it couldn't be updated!    "
+          }
+        }
+      }
+    },
+    "/sales/": {
+      "get": {
+        "tags": [
+          "Sales"
+        ],
+        "summary": "List Sales",
+        "description": "  List all sales!</br></br>  <b>Permission= Loginned user</b></br></br>  You can send query with endpoint for filter[],search[], sort[], page and limit.  <ul> Examples:   <li>URL/?<b>filter[field1]=value1&filter[field2]=value2</b></li>   <li>URL/?<b>search[field1]=value1&search[field2]=value2</b></li>   <li>URL/?<b>sort[field1]=1&sort[field2]=-1</b></li>   <li>URL/?<b>page=2&limit=1</b></li>  </ul>  ",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Sales"
+        ],
+        "summary": "Create new sale",
+        "description": "  Create a new sale!</br></br>  <b>Permission= Loginned User</b></br>   - product_id should exist on products</br>   </br>  ",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "product_id": {
+                  "type": "string",
+                  "example": "66b9fddcc29ab216e263b04f"
+                },
+                "quantity": {
+                  "type": "number",
+                  "example": 150
+                },
+                "price": {
+                  "type": "number",
+                  "example": 50
+                }
+              },
+              "required": [
+                "product_id",
+                "quantity",
+                "price"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully  !",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "boolean",
+                  "example": false
+                },
+                "message": {
+                  "type": "string",
+                  "example": "A new sale is created!!"
+                },
+                "result": {
+                  "$ref": "#/definitions/Sale"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request:   </br> - product_id, price, quantity fields are required!   </br> - Invalid brand_id, user_id, product_id type(ObjectId)!   </br> - Invalid quantity - it can't be less than 1!   "
+          },
+          "404": {
+            "description": "Not found:   </br> - Product not found on products!   </br> - Brand not found on brands!    </br> - User not found on brands!   "
+          }
+        }
+      }
+    },
+    "/sales/{id}": {
+      "get": {
+        "tags": [
+          "Sales"
+        ],
+        "summary": "Get a sale",
+        "description": "  Get a sale by id!</br></br>  <b>Permission= Loginned User</b></br></br>  ",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully Found!",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "boolean",
+                  "example": false
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Sale is found!!"
+                },
+                "result": {
+                  "$ref": "#/definitions/Sale"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid param id type(ObjectId)!!   "
+          },
+          "404": {
+            "description": "Not found - Sale not found!    "
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Sales"
+        ],
+        "summary": "Update sale",
+        "description": "  Update a new sale by id!</br></br>  <b>Permission= Loginned User</b></br>   - product_id should exist on products</br>    </br>  ",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "product_id": {
+                  "type": "string",
+                  "example": "66b9fddcc29ab216e263b04f"
+                },
+                "quantity": {
+                  "type": "number",
+                  "example": 150
+                },
+                "price": {
+                  "type": "number",
+                  "example": 50
+                }
+              },
+              "required": [
+                "product_id",
+                "quantity",
+                "price"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully  !",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "boolean",
+                  "example": false
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Sale is  !!"
+                },
+                "result": {
+                  "$ref": "#/definitions/Sale"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "202": {
+            "description": "Accepted"
+          },
+          "400": {
+            "description": "Bad request:    </br>-product_id, price, quantity fields are required!   </br> - Invalid param id, brand_id, user_id, product_id type(ObjectId)!   </br> - Invalid quantity - it can't be less than 1!   "
+          },
+          "404": {
+            "description": "Not found:    </br>- Sale not found!    </br> - Product not found on products!   </br> - Brand not found on brands!    </br> - User not found on brands!   "
+          },
+          "500": {
+            "description": "Something went wrong! - asked record is found, but it couldn't be updated!    "
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Sales"
+        ],
+        "summary": "Delete a sale",
+        "description": "  Delete a sale by id!</br></br>  <b>Permission= Loginned User</b></br></br>  ",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully Deleted!",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "boolean",
+                  "example": false
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Sale is deleted!!"
+                },
+                "result": {
+                  "$ref": "#/definitions/Sale"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad request - Invalid param id type(ObjectId)!!   "
+          },
+          "404": {
+            "description": "Not found - Sale not found!    "
+          },
+          "500": {
+            "description": "Something went wrong! - asked record is found, but it couldn't be updated!    "
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Sales"
+        ],
+        "summary": "Partially Update sale",
+        "description": "  Partially Update a new sale by id!</br></br>  <b>Permission= Loginned User</b></br>   - product_id should exist on products</br>    </br>  ",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "description": "At least one of the product_id, firm_id, price, quantity field is required!",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "product_id": {
+                  "type": "string",
+                  "example": "66b9fddcc29ab216e263b04f"
+                },
+                "quantity": {
+                  "type": "number",
+                  "example": 150
+                },
+                "price": {
+                  "type": "number",
+                  "example": 50
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully partially updated!",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "boolean",
+                  "example": false
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Sale is partially updated!!"
+                },
+                "result": {
+                  "$ref": "#/definitions/Sale"
+                }
+              },
+              "xml": {
+                "name": "main"
+              }
+            }
+          },
+          "202": {
+            "description": "Accepted"
+          },
+          "400": {
+            "description": "Bad request:    </br>- product_id or price or quantity field is required!   </br>- Invalid param id, brand_id, user_id, product_id type(ObjectId)!!   </br>- Invalid quantity - it can't be less than 1!   "
+          },
+          "404": {
+            "description": "Not found:    </br>- Sale not found!    </br> - Product not found on products!   </br> - Brand not found on brands!    </br> - User not found on brands!   "
           },
           "500": {
             "description": "Something went wrong! - asked record is found, but it couldn't be updated!    "
@@ -2844,6 +3174,100 @@
             "ref": {
               "type": "string",
               "example": "Firm"
+            },
+            "required": {
+              "type": "boolean",
+              "example": true
+            }
+          }
+        },
+        "brand_id": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "function"
+            },
+            "ref": {
+              "type": "string",
+              "example": "Brand"
+            },
+            "required": {
+              "type": "boolean",
+              "example": true
+            }
+          }
+        },
+        "product_id": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "function"
+            },
+            "ref": {
+              "type": "string",
+              "example": "Product"
+            },
+            "required": {
+              "type": "boolean",
+              "example": true
+            }
+          }
+        },
+        "quantity": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "function"
+            },
+            "required": {
+              "type": "boolean",
+              "example": true
+            }
+          }
+        },
+        "price": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "function"
+            },
+            "required": {
+              "type": "boolean",
+              "example": true
+            }
+          }
+        },
+        "amount": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "function"
+            },
+            "set": {
+              "type": "function"
+            },
+            "default": {
+              "type": "function"
+            },
+            "transform": {
+              "type": "function"
+            }
+          }
+        }
+      }
+    },
+    "Sale": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "function"
+            },
+            "ref": {
+              "type": "string",
+              "example": "User"
             },
             "required": {
               "type": "boolean",

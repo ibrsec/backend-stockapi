@@ -46,6 +46,7 @@ const document = {
     Brand: require("./src/models/brandModel").Brand.schema.obj,
     Product: require("./src/models/productModel").Product.schema.obj,
     Purchase: require("./src/models/purchaseModel").Purchase.schema.obj,
+    Sale: require("./src/models/saleModel").Sale.schema.obj,
     // Car: require("./src/models/carModel").Car.schema.obj,
     // Reservation: require("./src/models/reservationModel").Reservation.schema.obj,
     Error: {

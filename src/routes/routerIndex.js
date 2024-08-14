@@ -24,6 +24,7 @@ router.use('/categories',require('./categoryRouter'));
 router.use('/brands',require('./brandRouter'));
 router.use('/products',require('./productRouter'));
 router.use('/purchases',require('./purchaseRouter'));
+router.use('/sales',require('./saleRouter'));
 
 
  

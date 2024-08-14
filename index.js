@@ -6,7 +6,7 @@ require("express-async-errors");
 const express = require("express");
 const { dbConnection } = require("./src/configs/dbConnection");
 const logger = require("./src/middlewares/logger");
-const errorHandler = require("./src/middlewares/erroHandler");
+const errorHandler = require("./src/middlewares/errorHandler");
 const cors = require("cors");
 const queryHandler = require("./src/middlewares/queryHandler");
 const path = require("path");
