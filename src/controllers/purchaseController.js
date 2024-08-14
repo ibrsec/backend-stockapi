@@ -2,8 +2,7 @@
 
 const { mongoose } = require("../configs/dbConnection");
 const CustomError = require("../errors/customError");
-const { Brand } = require("../models/brandModel");
-const { Category } = require("../models/categoryModel");
+const { Brand } = require("../models/brandModel"); 
 const { Firm } = require("../models/firmModel");
 const { Product } = require("../models/productModel");
 const { Purchase } = require("../models/purchaseModel");
@@ -81,7 +80,7 @@ module.exports.purchase = {
             }
             #swagger.responses[404] = {
             description:`Not found:
-                          </br> - Product not found on categories!
+                          </br> - Product not found on products!
                           </br> - Brand not found on brands!
                           </br> - Firm not found on brands!
                           </br> - User not found on brands!
@@ -218,8 +217,8 @@ module.exports.purchase = {
             #swagger.summary = "Update purchase"
             #swagger.description = `
                 Update a new purchase by id!</br></br>
-                <b>Permission= Loginned User</b></br> 
-                - product_id can't be update.d</br> 
+                <b>Permission= Loginned User</b></br>  
+                - product_id should exist on products</br>
                 - firm_id should exist on firms</br>
                   </br>
             `
@@ -227,6 +226,7 @@ module.exports.purchase = {
                 in:'body',
                 required:true,
                 schema:{
+                    $product_id: '66b9fddcc29ab216e263b04f', 
                     $firm_id: '66b9fddcc29ab216e263b04f', 
                     $quantity: 150,
                     $price: 50,
@@ -243,13 +243,14 @@ module.exports.purchase = {
         }  
             #swagger.responses[400] = {
             description:`Bad request: 
-                      </br>-firm_id, price, quantity fields are required!
+                      </br>-product_id, firm_id, price, quantity fields are required!
                       </br> - Invalid param id, brand_id, firm_id, user_id, product_id type(ObjectId)!
                       `
             }
             #swagger.responses[404] = {
             description:`Not found: 
                       </br>- Purchase not found!  
+                      </br> - Product not found on products!
                       </br> - Brand not found on brands!
                       </br> - Firm not found on brands!
                       </br> - User not found on brands!
@@ -264,32 +265,29 @@ module.exports.purchase = {
 
         */
 
-
-//update de product id degisirse -> yapialcak islemler neler olsun
-          //  - product id degisirse ->  bence prodct id update edilemesin,
-          // cunku ozaman quantity isleri biraz sacmalasiyor.
-          // product id yi update etmeyi yasaklarsam is suan cozuluyor,
-          //parital updatedede ayn sekilde 
-
-
-
-
-
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       throw new CustomError("Invalid param id type(ObjectId)!", 400);
     }
 
-    const {  firm_id, price, quantity } = req.body;
+    const { product_id, firm_id, price, quantity } = req.body;
 
-    if (!firm_id || !price || !quantity) {
+    if (!product_id || !firm_id || !price || !quantity) {
       throw new CustomError(
-        "firm_id, price, quantity fields are required!",
+        "product_id, firm_id, price, quantity fields are required!",
         400
       );
     }
 
     //check user, firm and brand
 
+    if (!mongoose.Types.ObjectId.isValid(product_id)) {
+      throw new CustomError("Invalid product_id type(ObjectId)!", 400);
+    }
+
+    const product = await Product.findOne({ _id: product_id });
+    if (!product) {
+      throw new CustomError("Product not found on products!", 404);
+    }
 
     if (!mongoose.Types.ObjectId.isValid(firm_id)) {
       throw new CustomError("Invalid firm_id type(ObjectId)!", 400);
@@ -305,8 +303,8 @@ module.exports.purchase = {
     //user_id comes from req user
     req.body.user_id = req.user?._id;
 
-
-
+    //brand_id comes from product's brand_id
+    req.body.brand_id = product?.brand_id;
 
     const { user_id, brand_id } = req.body;
 
@@ -333,21 +331,9 @@ module.exports.purchase = {
       throw new CustomError("Purchase not found", 404);
     }
 
-
-    const product = await Product.findOne({ _id: purchaseData?.product_id });
-    if (!product) {
-      throw new CustomError("Product not found on products!", 404);
-    }
-    const product_id = product?._id;
-
-    //brand_id comes from product's brand_id
-    req.body.brand_id = product?.brand_id;
-    delete req.body.product_id;
-
-
-
     const oldQuantity = purchaseData?.quantity;
 
+    //make main update at purchase->
     const { modifiedCount } = await Purchase.updateOne(
       { _id: req.params.id },
       req.body,
@@ -360,13 +346,35 @@ module.exports.purchase = {
         500
       );
     }
+
     const updatedPurchase = await Purchase.findOne({ _id: req.params.id });
 
     const newQuantity = updatedPurchase?.quantity;
-    const updateQuantityofProduct = await Product.updateOne(
-      { _id: product_id },
-      { quantity: product.quantity + (newQuantity - oldQuantity) }
-    );
+
+    //update de product id degisirse -> yapialcak islemler neler olsun
+    if (purchaseData?.product_id != product_id) {
+      //product id degisirseek eski olandan quantity cikarilacak yeni olana eklenecek
+      //quantityde degisirse eski quantity eski productan cikacak, yeni quantity yeni producta eklenecek!
+
+      const oldProduct = await Product.findOne({
+        _id: purchaseData?.product_id,
+      });
+      const oldProductUpdateQuantity = await Product.updateOne(
+        { _id: purchaseData?.product_id },
+        { quantity: oldProduct.quantity - oldQuantity },
+        { runValidators: true }
+      );
+
+      const updateQuantityofProduct = await Product.updateOne(
+        { _id: product_id },
+        { quantity: product.quantity + quantity }
+      );
+    } else {
+      const updateQuantityofProduct = await Product.updateOne(
+        { _id: product_id },
+        { quantity: product.quantity + (newQuantity - oldQuantity) }
+      );
+    }
 
     res.status(202).json({
       error: false,
@@ -415,7 +423,7 @@ module.exports.purchase = {
             #swagger.responses[404] = {
             description:`Not found: 
                       </br>- Purchase not found! 
-                          </br> - Product not found on categories!
+                          </br> - Product not found on products!
                           </br> - Brand not found on brands!
                           </br> - Firm not found on brands!
                           </br> - User not found on brands!
@@ -443,19 +451,21 @@ module.exports.purchase = {
     }
 
     //check product, user, firm and brand
+    let product = null;
+    let firm = null;
+
     if (product_id) {
       if (!mongoose.Types.ObjectId.isValid(product_id)) {
         throw new CustomError("Invalid product_id type(ObjectId)!", 400);
       }
 
-      const product = await Product.findOne({ _id: product_id });
+      product = await Product.findOne({ _id: product_id });
       if (!product) {
         throw new CustomError("Product not found on products!", 404);
       }
       //brand_id comes from product's brand_id
       req.body.brand_id = product?.brand_id;
-    }else{
-
+    } else {
     }
 
     if (firm_id) {
@@ -463,7 +473,7 @@ module.exports.purchase = {
         throw new CustomError("Invalid firm_id type(ObjectId)!", 400);
       }
 
-      const firm = await Firm.findOne({ _id: firm_id });
+      firm = await Firm.findOne({ _id: firm_id });
       if (!firm) {
         throw new CustomError("Firm not found on firms!", 404);
       }
@@ -473,7 +483,6 @@ module.exports.purchase = {
 
     //user_id comes from req user
     req.body.user_id = req.user?._id;
-
 
     const { user_id, brand_id } = req.body;
 
@@ -486,13 +495,15 @@ module.exports.purchase = {
       throw new CustomError("User not found on users!", 404);
     }
 
-    if (!mongoose.Types.ObjectId.isValid(brand_id)) {
-      throw new CustomError("Invalid brand_id type(ObjectId)!", 400);
-    }
+    if (brand_id) {
+      if (!mongoose.Types.ObjectId.isValid(brand_id)) {
+        throw new CustomError("Invalid brand_id type(ObjectId)!", 400);
+      }
 
-    const brand = await Brand.findOne({ _id: brand_id });
-    if (!brand) {
-      throw new CustomError("Brand not found on brands!", 404);
+      const brand = await Brand.findOne({ _id: brand_id });
+      if (!brand) {
+        throw new CustomError("Brand not found on brands!", 404);
+      }
     }
 
     const purchaseData = await Purchase.findOne({ _id: req.params.id });
@@ -515,15 +526,42 @@ module.exports.purchase = {
     }
 
     const updatedPurchase = await Purchase.findOne({ _id: req.params.id });
+    const oldProduct = await Product.findOne({
+      _id: purchaseData?.product_id,
+    });
 
     const newQuantity = updatedPurchase?.quantity;
 
-    if (req.body?.quantity) {
+    //update de product id degisirse -> yapialcak islemler neler olsun
+    if (product_id) {// if product id is not null
+      if (purchaseData?.product_id != product_id) {
+        //product id degisirseek eski olandan quantity cikarilacak yeni olana eklenecek
+        //quantityde degisirse eski quantity eski productan cikacak, yeni quantity yeni producta eklenecek!
+
+        const oldProductUpdateQuantity = await Product.updateOne(
+          { _id: purchaseData?.product_id },
+          { quantity: oldProduct.quantity - oldQuantity },
+          { runValidators: true }
+        );
+
+        const updateQuantityofProduct = await Product.updateOne(
+          { _id: product_id },
+          { quantity: product.quantity + updatedPurchase?.quantity }
+        );
+      } else {
+        const updateQuantityofProduct = await Product.updateOne(
+          { _id: product_id },
+          { quantity: product.quantity + (newQuantity - oldQuantity) }
+        );
+      }
+    } else {
+      //if product_id is null
       const updateQuantityofProduct = await Product.updateOne(
-        { _id: product_id },
-        { quantity: product.quantity + (newQuantity - oldQuantity) }
+        { _id: purchaseData?.product_id },
+        { quantity: oldProduct.quantity + (newQuantity - oldQuantity) }
       );
     }
+
 
     res.status(202).json({
       error: false,

@@ -1990,7 +1990,7 @@
           "Purchases"
         ],
         "summary": "Create new purchase",
-        "description": "  Create a new purchase!</br></br>  <b>Permission= Loginned User</b></br>   - product_id should exist on products</br>  - user_id should exist on users</br>  - firm_id should exist on firms</br>   </br>  ",
+        "description": "  Create a new purchase!</br></br>  <b>Permission= Loginned User</b></br>   - product_id should exist on products</br>   - firm_id should exist on firms</br>   </br>  ",
         "parameters": [
           {
             "name": "body",
@@ -2049,10 +2049,10 @@
             }
           },
           "400": {
-            "description": "Bad request:   </br> - product_id, firm_id, price, quantity fields are required!   </br> - Invalid category_id, brand_id, firm_id, user_id type(ObjectId)!   "
+            "description": "Bad request:   </br> - product_id, firm_id, price, quantity fields are required!   </br> - Invalid brand_id, firm_id, user_id, product_id type(ObjectId)!   "
           },
           "404": {
-            "description": "Not found:   </br> - Product not found on categories!   </br> - Brand not found on brands!   </br> - Firm not found on brands!   </br> - User not found on brands!   "
+            "description": "Not found:   </br> - Product not found on products!   </br> - Brand not found on brands!   </br> - Firm not found on brands!   </br> - User not found on brands!   "
           }
         }
       }
@@ -2108,7 +2108,7 @@
           "Purchases"
         ],
         "summary": "Update purchase",
-        "description": "  Update a new purchase by id!</br></br>  <b>Permission= Loginned User</b></br>   - Purchase name should have a unique value</br>  - name field Max Length:100</br>  - category_id should exist on categories</br>  - brand_id should exist on brands</br>   </br>  ",
+        "description": "  Update a new purchase by id!</br></br>  <b>Permission= Loginned User</b></br>   - product_id should exist on products</br>  - firm_id should exist on firms</br>   </br>  ",
         "parameters": [
           {
             "name": "id",
@@ -2123,23 +2123,28 @@
             "schema": {
               "type": "object",
               "properties": {
-                "name": {
-                  "type": "string",
-                  "example": "newPurchaseName"
-                },
-                "category_id": {
+                "product_id": {
                   "type": "string",
                   "example": "66b9fddcc29ab216e263b04f"
                 },
-                "brand_id": {
+                "firm_id": {
                   "type": "string",
-                  "example": "66b9f845453a084e04ef28ff"
+                  "example": "66b9fddcc29ab216e263b04f"
+                },
+                "quantity": {
+                  "type": "number",
+                  "example": 150
+                },
+                "price": {
+                  "type": "number",
+                  "example": 50
                 }
               },
               "required": [
-                "name",
-                "category_id",
-                "brand_id"
+                "product_id",
+                "firm_id",
+                "quantity",
+                "price"
               ]
             }
           }
@@ -2171,10 +2176,10 @@
             "description": "Accepted"
           },
           "400": {
-            "description": "Bad request:    </br>- name, category_id, brand_id fields are required!   </br> - Invalid param id, category_id, brand_id type(ObjectId)!   "
+            "description": "Bad request:    </br>-product_id, firm_id, price, quantity fields are required!   </br> - Invalid param id, brand_id, firm_id, user_id, product_id type(ObjectId)!   "
           },
           "404": {
-            "description": "Not found:    </br>- Purchase not found!    </br> - Category not found on categories!   </br> - Brand not found on brands!   "
+            "description": "Not found:    </br>- Purchase not found!    </br> - Product not found on products!   </br> - Brand not found on brands!   </br> - Firm not found on brands!   </br> - User not found on brands!   "
           },
           "500": {
             "description": "Something went wrong! - asked record is found, but it couldn't be updated!    "
@@ -2237,7 +2242,7 @@
           "Purchases"
         ],
         "summary": "Partially Update purchase",
-        "description": "  Partially Update a new purchase by id!</br></br>  <b>Permission= Loginned User</b></br>   - Purchase name should have a unique value</br>  - name field Max Length:100</br>  - category_id should exist on categories</br>  - brand_id should exist on brands</br>   </br>  ",
+        "description": "  Partially Update a new purchase by id!</br></br>  <b>Permission= Loginned User</b></br>   - product_id should exist on products</br>   - firm_id should exist on firms</br>   </br>  ",
         "parameters": [
           {
             "name": "id",
@@ -2248,29 +2253,28 @@
           {
             "name": "body",
             "in": "body",
-            "description": "At least one of the name, category_id, brand_id field is required!",
+            "description": "At least one of the product_id, firm_id, price, quantity field is required!",
             "required": true,
             "schema": {
               "type": "object",
               "properties": {
-                "name": {
-                  "type": "string",
-                  "example": "newPurchaseName"
-                },
-                "category_id": {
+                "product_id": {
                   "type": "string",
                   "example": "66b9fddcc29ab216e263b04f"
                 },
-                "brand_id": {
+                "firm_id": {
                   "type": "string",
-                  "example": "66b9f845453a084e04ef28ff"
+                  "example": "66b9fddcc29ab216e263b04f"
+                },
+                "quantity": {
+                  "type": "number",
+                  "example": 150
+                },
+                "price": {
+                  "type": "number",
+                  "example": 50
                 }
-              },
-              "required": [
-                "name",
-                "category_id",
-                "brand_id"
-              ]
+              }
             }
           }
         ],
@@ -2301,10 +2305,10 @@
             "description": "Accepted"
           },
           "400": {
-            "description": "Bad request:    </br>- name or category_id or brand_id field is required!   </br>- Invalid param id type(ObjectId)!!   "
+            "description": "Bad request:    </br>- product_id or firm_id or price or quantity field is required!   </br>- Invalid param id, brand_id, firm_id, user_id, product_id type(ObjectId)!!   "
           },
           "404": {
-            "description": "Not found:    </br>- Purchase not found!    "
+            "description": "Not found:    </br>- Purchase not found!    </br> - Product not found on products!   </br> - Brand not found on brands!   </br> - Firm not found on brands!   </br> - User not found on brands!   "
           },
           "500": {
             "description": "Something went wrong! - asked record is found, but it couldn't be updated!    "
