@@ -56,29 +56,29 @@ const UserSchema = new mongoose.Schema({
       invalidPasswordMessage,
     ],
   },
-  first_name:{
+  firstName:{
     type:String,
     trim:true,
     required: true,
     
   },
-  last_name:{
+  lastName:{
     type:String,
     trim:true,
     required: true,
 
   },
-  is_active:{
+  isActive:{
     type: Boolean,
     default:true,
 
   },
-  is_admin:{
+  isAdmin:{
     type: Boolean,
     default:false,
 
   },
-  is_staff:{
+  isStaff:{
     type: Boolean,
     default:false,
 

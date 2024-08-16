@@ -34,13 +34,24 @@ module.exports.auth = {
             schema: { 
                 error: false,
                 message: "Login is OK!",
-                result:{
                     token: 'tokenkey',
                     bearer:{
                         accessToken: 'access token',
                         refreshToken: 'refresh token'
-                    }
-                } 
+                    },
+                user:{
+                  "_id": "66362c828c9af95390f5aae5",
+                  "username": "testba",
+                  "password": "f1dffdee8d0642d170e697331929a7250aedca4ad508f4d1f9986dbdb888c5fc",
+                  "email": "testba@test.com",
+                  "firstName": "testba",
+                  "lastName": "batest",
+                  "isActive": true,
+                  "isStaff": false,
+                  "isAdmin": false,
+                  "createdAt": "2024-05-04T12:39:30.473Z",
+                  "updatedAt": "2024-05-04T12:39:30.473Z",
+                }
             }
 
         }  
@@ -71,7 +82,7 @@ module.exports.auth = {
     if (!user) {
       throw new CustomError("Unauthorized - User not found!", 401);
     }
-    if (!user?.is_active) {
+    if (!user?.isActive) {
       throw new CustomError(
         "Unauthorized - Your account is not active - please contact with support!",
         401
@@ -83,10 +94,10 @@ module.exports.auth = {
     }
 
     //token auth
-    let tokenData = await Token.findOne({ user_id: user?._id });
+    let tokenData = await Token.findOne({ userId: user?._id });
     if (!tokenData) {
       tokenData = await Token.create({
-        user_id: user?._id,
+        userId: user?._id,
         token: passwordEncryptor(user?._id + Date.now()),
       });
     }
@@ -95,9 +106,9 @@ module.exports.auth = {
     const accessData = {
       _id: user?._id,
       username: user?.username,
-      is_admin: user?.is_admin,
-      is_active: user?.is_active,
-      is_staff: user?.is_staff,
+      isAdmin: user?.isAdmin,
+      isActive: user?.isActive,
+      isStaff: user?.isStaff,
     };
     const refreshData = {
       username: user?.username,
@@ -114,13 +125,12 @@ module.exports.auth = {
     res.status(200).json({
       error: false,
       message: "Login is OK!",
-      result: {
-        token: tokenData?.token,
-        bearer: {
-          accessToken,
-          refreshToken,
-        },
+      token: tokenData?.token,
+      bearer: {
+        accessToken,
+        refreshToken,
       },
+      user,
     });
   },
   refresh: async (req, res) => {
@@ -171,67 +181,64 @@ module.exports.auth = {
 
         */
     const refreshToken = req?.body?.bearer?.refreshToken;
-    if(!refreshToken){
-        throw new CustomError('bearer.refreshToken is a required field!',400);
+    if (!refreshToken) {
+      throw new CustomError("bearer.refreshToken is a required field!", 400);
     }
 
-    let decodedData =false;
-    jwt.verify(refreshToken,process.env.REFRESH_KEY,(err,decoded)=>{
-        if(err){
-            throw new CustomError( "Unauhtorized - Invalid signature - invalid token or token is expired!!",401);
-        }
-        decodedData = decoded
+    let decodedData = false;
+    jwt.verify(refreshToken, process.env.REFRESH_KEY, (err, decoded) => {
+      if (err) {
+        throw new CustomError(
+          "Unauhtorized - Invalid signature - invalid token or token is expired!!",
+          401
+        );
+      }
+      decodedData = decoded;
     });
-    
+
     console.log(decodedData);
 
-    if(!decodedData){
-        throw new CustomError( "Unauhtorized - Invalid signature - invalid token or token is expired!",401);
+    if (!decodedData) {
+      throw new CustomError(
+        "Unauhtorized - Invalid signature - invalid token or token is expired!",
+        401
+      );
     }
 
-    const user = await User.findOne({username:decodedData?.username});
-    if(!user){
-
-        throw new CustomError( "Unauhtorized - User not found!",401);
+    const user = await User.findOne({ username: decodedData?.username });
+    if (!user) {
+      throw new CustomError("Unauhtorized - User not found!", 401);
     }
-    if (!user?.is_active) {
+    if (!user?.isActive) {
       throw new CustomError(
         "Unauthorized - Your account is not active - please contact with support!",
         401
       );
     }
 
-    if(user?.password!==decodedData?.password){
-        throw new CustomError( "Unauhtorized - Invalid password!",401);
-
+    if (user?.password !== decodedData?.password) {
+      throw new CustomError("Unauhtorized - Invalid password!", 401);
     }
-   
 
     const accessData = {
-        _id: user?._id,
-        username: user?.username,
-        is_admin: user?.is_admin,
-        is_active: user?.is_active,
-        is_staff: user?.is_staff,
-    }
+      _id: user?._id,
+      username: user?.username,
+      isAdmin: user?.isAdmin,
+      isActive: user?.isActive,
+      isStaff: user?.isStaff,
+    };
 
     const accessToken = jwt.sign(accessData, process.env.ACCESS_KEY, {
-        expiresIn: "30m",
-      });
+      expiresIn: "30m",
+    });
 
-
-      res.status(200).json({
-        error: false,
-        message: "Access token is refreshed!!",
-        result: {
-          bearer: {
-            accessToken,
-          },
-        },
-      });
-
-
-
+    res.status(200).json({
+      error: false,
+      message: "Access token is refreshed!!",
+      bearer: {
+        accessToken,
+      },
+    });
   },
   logout: async (req, res) => {
     /* 
@@ -256,15 +263,12 @@ module.exports.auth = {
 
 
         */
-    const { deletedCount } = await Token.deleteOne({ user_id: req?.user?._id });
-
+    const result = await Token.deleteOne({ userId: req?.user?._id });
 
     res.json({
       error: false,
       message: "Logout is OK!",
-      result: {
-        deletedToken: deletedCount,
-      },
+      result
     });
   },
 };

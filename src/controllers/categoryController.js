@@ -30,7 +30,7 @@ module.exports.category = {
       error: false,
       message: "Categories are listed!",
       details: await res.getModelListDetails(Category),
-      result: categories,
+      data: categories,
     });
   },
   create: async (req, res) => {
@@ -55,7 +55,7 @@ module.exports.category = {
             schema: { 
                 error: false,
                 message: "A new category is created!!",
-                result:{$ref: '#/definitions/Category'} 
+                data:{$ref: '#/definitions/Category'} 
             }
 
         }  
@@ -71,11 +71,11 @@ module.exports.category = {
     if (!name ) {
       throw new CustomError("name field is required!", 400);
     }
-    // if (!mongoose.Types.ObjectId.isValid(user_id)) {
+    // if (!mongoose.Types.ObjectId.isValid(userId)) {
     //   throw new CustomError("Invalid id type(ObjectId)!", 400);
     // }
 
-    // const user = await User.findOne({ _id: user_id });
+    // const user = await User.findOne({ _id: userId });
     // if (!user) {
     //   throw new CustomError("User not found on users!", 404);
     // }
@@ -84,7 +84,7 @@ module.exports.category = {
     res.status(201).json({
       error: false,
       message: "A new category is created!",
-      result: newCategory,
+      data: newCategory,
     });
   },
   read: async (req, res) => {
@@ -100,7 +100,7 @@ module.exports.category = {
             schema: { 
                 error: false,
                 message:  "Category is found!!",
-                result:{$ref: '#/definitions/Category'} 
+                data:{$ref: '#/definitions/Category'} 
             }
 
         }  
@@ -130,7 +130,7 @@ module.exports.category = {
     res.status(200).json({
       error: false,
       message: "Category is found!",
-      result: category,
+      data: category,
     });
   },
   update: async (req, res) => {
@@ -155,7 +155,8 @@ module.exports.category = {
             schema: { 
                 error: false,
                 message:  "Category is updated!!",
-                result:{$ref: '#/definitions/Category'} 
+                data:{modifiedCount:1},
+                new:{$ref: '#/definitions/Category'} 
             }
 
         }  
@@ -197,13 +198,13 @@ module.exports.category = {
 
     
 
-    const { modifiedCount } = await Category.updateOne(
+    const data = await Category.updateOne(
       { _id: req.params.id },
       req.body,
       { runValidators: true }
     );
 
-    if (modifiedCount < 1) {
+    if (data?.modifiedCount < 1) {
       throw new CustomError(
         "Something went wrong! - asked record is found, but it couldn't be updated!",
         500
@@ -213,7 +214,8 @@ module.exports.category = {
     res.status(202).json({
       error: false,
       message: "Category is updated!",
-      result: await Category.findOne({ _id: req.params.id }),
+      data,
+      new: await Category.findOne({ _id: req.params.id }),
     });
   },
   partialUpdate: async (req, res) => {
@@ -240,7 +242,8 @@ module.exports.category = {
             schema: { 
                 error: false,
                 message: "Category is partially updated!!",
-                result:{$ref: '#/definitions/Category'} 
+                data:{modifiedCount:1},
+                new:{$ref: '#/definitions/Category'} 
             }
 
         }  
@@ -280,13 +283,13 @@ module.exports.category = {
     }
 
 
-    const { modifiedCount } = await Category.updateOne(
+    const data = await Category.updateOne(
       { _id: req.params.id },
       req.body,
       { runValidators: true }
     );
 
-    if (modifiedCount < 1) {
+    if (data?.modifiedCount < 1) {
       throw new CustomError(
         "Something went wrong! - asked record is found, but it couldn't be updated!",
         500
@@ -296,7 +299,8 @@ module.exports.category = {
     res.status(202).json({
       error: false,
       message: "Category is partially updated!",
-      result: await Category.findOne({ _id: req.params.id }),
+      data,
+      new: await Category.findOne({ _id: req.params.id }),
     });
   },
   delete: async (req, res) => {

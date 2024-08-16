@@ -28,14 +28,14 @@ module.exports.product = {
         */
 
     const products = await res.getModelList(Product,{},[
-      'category_id',
-      'brand_id',
+      'categoryId',
+      'brandId',
     ]);
     res.status(200).json({
       error: false,
       message: "Products are listed!",
       details: await res.getModelListDetails(Product),
-      result: products,
+      data: products,
     });
   },
   create: async (req, res) => {
@@ -46,8 +46,8 @@ module.exports.product = {
                 Create a new product!</br></br>
                 <b>Permission= Loginned User</b></br>  
                 - name field Max Length:100</br>
-                - category_id should exist on categories</br>
-                - brand_id should exist on brands</br>
+                - categoryId should exist on categories</br>
+                - brandId should exist on brands</br>
                  </br>
             `
             #swagger.parameters['body']={
@@ -55,8 +55,8 @@ module.exports.product = {
                 required:true,
                 schema:{
                     $name : 'newProductName', 
-                    $category_id: '66b9fddcc29ab216e263b04f',
-                    $brand_id: '66b9f845453a084e04ef28ff',
+                    $categoryId: '66b9fddcc29ab216e263b04f',
+                    $brandId: '66b9f845453a084e04ef28ff',
                 }
             }
             #swagger.responses[201] = {
@@ -64,14 +64,14 @@ module.exports.product = {
             schema: { 
                 error: false,
                 message: "A new product is created!!",
-                result:{$ref: '#/definitions/Product'} 
+                data:{$ref: '#/definitions/Product'} 
             }
 
         }  
             #swagger.responses[400] = {
             description:`Bad request:
-                          </br> - name, category_id, brand_id fields are required!
-                          </br> - Invalid category_id, brand_id type(ObjectId)!
+                          </br> - name, categoryId, brandId fields are required!
+                          </br> - Invalid categoryId, brandId type(ObjectId)!
                         `
             }
             #swagger.responses[404] = {
@@ -84,28 +84,28 @@ module.exports.product = {
 
 
         */
-    const { name, category_id, brand_id, quantity} = req.body;
+    const { name, categoryId, brandId, quantity} = req.body;
 
-    if (!name || !category_id || !brand_id ) {
-      throw new CustomError("name, category_id, brand_id fields are required!", 400);
+    if (!name || !categoryId || !brandId ) {
+      throw new CustomError("name, categoryId, brandId fields are required!", 400);
     }
 
 
 
     //check category and brand
-    if (!mongoose.Types.ObjectId.isValid(category_id)) {
-      throw new CustomError("Invalid category_id type(ObjectId)!", 400);
+    if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+      throw new CustomError("Invalid categoryId type(ObjectId)!", 400);
     }
 
-    const category = await Category.findOne({ _id: category_id });
+    const category = await Category.findOne({ _id: categoryId });
     if (!category) {
       throw new CustomError("Category not found on categories!", 404);
     }
-    if (!mongoose.Types.ObjectId.isValid(brand_id)) {
-      throw new CustomError("Invalid brand_id type(ObjectId)!", 400);
+    if (!mongoose.Types.ObjectId.isValid(brandId)) {
+      throw new CustomError("Invalid brandId type(ObjectId)!", 400);
     }
 
-    const brand = await Brand.findOne({ _id: brand_id });
+    const brand = await Brand.findOne({ _id: brandId });
     if (!brand) {
       throw new CustomError("Brand not found on brands!", 404);
     }
@@ -117,7 +117,7 @@ module.exports.product = {
     res.status(201).json({
       error: false,
       message: "A new product is created!",
-      result: newProduct,
+      data: newProduct,
     });
   },
   read: async (req, res) => {
@@ -133,7 +133,7 @@ module.exports.product = {
             schema: { 
                 error: false,
                 message:  "Product is found!!",
-                result:{$ref: '#/definitions/Product'} 
+                data:{$ref: '#/definitions/Product'} 
             }
 
         }  
@@ -155,8 +155,8 @@ module.exports.product = {
     }
 
     const product = await Product.findOne({ _id: req.params.id }).populate([
-      {path:'category_id', select: '_id name '},
-      {path:'brand_id', select: '_id name image'},
+      {path:'categoryId', select: '_id name '},
+      {path:'brandId', select: '_id name image'},
     ]);
 
     if (!product) {
@@ -166,7 +166,7 @@ module.exports.product = {
     res.status(200).json({
       error: false,
       message: "Product is found!",
-      result: product,
+      data: product,
     });
   },
   update: async (req, res) => {
@@ -178,8 +178,8 @@ module.exports.product = {
                 <b>Permission= Loginned User</b></br> 
                 - Product name should have a unique value</br>
                 - name field Max Length:100</br>
-                - category_id should exist on categories</br>
-                - brand_id should exist on brands</br>
+                - categoryId should exist on categories</br>
+                - brandId should exist on brands</br>
                   </br>
             `
             #swagger.parameters['body']={
@@ -187,8 +187,8 @@ module.exports.product = {
                 required:true,
                 schema:{
                     $name : 'newProductName',
-                    $category_id: '66b9fddcc29ab216e263b04f',
-                    $brand_id: '66b9f845453a084e04ef28ff',
+                    $categoryId: '66b9fddcc29ab216e263b04f',
+                    $brandId: '66b9f845453a084e04ef28ff',
                 }
             }
             #swagger.responses[201] = {
@@ -196,14 +196,15 @@ module.exports.product = {
             schema: { 
                 error: false,
                 message:  "Product is updated!!",
-                result:{$ref: '#/definitions/Product'} 
+                data:{modifiedCount:1},
+                new:{$ref: '#/definitions/Product'} 
             }
 
         }  
             #swagger.responses[400] = {
             description:`Bad request: 
-                      </br>- name, category_id, brand_id fields are required!
-                      </br> - Invalid param id, category_id, brand_id type(ObjectId)!
+                      </br>- name, categoryId, brandId fields are required!
+                      </br> - Invalid param id, categoryId, brandId type(ObjectId)!
                       `
             }
             #swagger.responses[404] = {
@@ -227,29 +228,29 @@ module.exports.product = {
       throw new CustomError("Invalid param id type(ObjectId)!", 400);
     }
 
-    const { name, category_id, brand_id} = req.body;
+    const { name, categoryId, brandId} = req.body;
 
-    if (!name || !category_id || !brand_id) {
-      throw new CustomError("name, category_id, brand_id fields are required!", 400);
+    if (!name || !categoryId || !brandId) {
+      throw new CustomError("name, categoryId, brandId fields are required!", 400);
     }
 
 
 
 
     //check category and brand
-    if (!mongoose.Types.ObjectId.isValid(category_id)) {
-      throw new CustomError("Invalid category_id type(ObjectId)!", 400);
+    if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+      throw new CustomError("Invalid categoryId type(ObjectId)!", 400);
     }
 
-    const category = await Category.findOne({ _id: category_id });
+    const category = await Category.findOne({ _id: categoryId });
     if (!category) {
       throw new CustomError("Category not found on categories!", 404);
     }
-    if (!mongoose.Types.ObjectId.isValid(brand_id)) {
-      throw new CustomError("Invalid category_id type(ObjectId)!", 400);
+    if (!mongoose.Types.ObjectId.isValid(brandId)) {
+      throw new CustomError("Invalid categoryId type(ObjectId)!", 400);
     }
 
-    const brand = await Brand.findOne({ _id: brand_id });
+    const brand = await Brand.findOne({ _id: brandId });
     if (!brand) {
       throw new CustomError("Brand not found on brands!", 404);
     }
@@ -266,14 +267,17 @@ module.exports.product = {
     
     // delete req.body.quantity;
     
+    //delete _id if it is sent
+    if(req?.body?._id) delete req.body._id;
 
-    const { modifiedCount } = await Product.updateOne(
+    //main update
+    const data = await Product.updateOne(
       { _id: req.params.id },
       req.body,
       { runValidators: true }
     );
 
-    if (modifiedCount < 1) {
+    if (data?.modifiedCount < 1) {
       throw new CustomError(
         "Something went wrong! - asked record is found, but it couldn't be updated!",
         500
@@ -283,7 +287,8 @@ module.exports.product = {
     res.status(202).json({
       error: false,
       message: "Product is updated!",
-      result: await Product.findOne({ _id: req.params.id }),
+      data,
+      new: await Product.findOne({ _id: req.params.id }),
     });
   },
   partialUpdate: async (req, res) => {
@@ -296,18 +301,18 @@ module.exports.product = {
                 <b>Permission= Loginned User</b></br> 
                 - Product name should have a unique value</br>
                 - name field Max Length:100</br>
-                - category_id should exist on categories</br>
-                - brand_id should exist on brands</br>
+                - categoryId should exist on categories</br>
+                - brandId should exist on brands</br>
                   </br>
             `
             #swagger.parameters['body']={
                 in:'body',
-                description:"At least one of the name, category_id, brand_id field is required!",
+                description:"At least one of the name, categoryId, brandId field is required!",
                 required:true,
                 schema:{
                     $name : 'newProductName',
-                    $category_id: '66b9fddcc29ab216e263b04f',
-                    $brand_id: '66b9f845453a084e04ef28ff',
+                    $categoryId: '66b9fddcc29ab216e263b04f',
+                    $brandId: '66b9f845453a084e04ef28ff',
 
                 }
             }
@@ -316,13 +321,14 @@ module.exports.product = {
             schema: { 
                 error: false,
                 message: "Product is partially updated!!",
-                result:{$ref: '#/definitions/Product'} 
+                data:{modifiedCount:1},
+                new:{$ref: '#/definitions/Product'} 
             }
 
         }  
             #swagger.responses[400] = {
             description:`Bad request: 
-                      </br>- name or category_id or brand_id field is required!
+                      </br>- name or categoryId or brandId field is required!
                       </br>- Invalid param id type(ObjectId)!!
                       `
             }
@@ -343,27 +349,27 @@ module.exports.product = {
       throw new CustomError("Invalid id type(ObjectId)!", 400);
     }
 
-    const { name, category_id, brand_id } = req.body;
+    const { name, categoryId, brandId } = req.body;
 
-    if (!(name || category_id || brand_id) ) {
-      throw new CustomError("name or category_id or brand_id field is required!", 400);
+    if (!(name || categoryId || brandId) ) {
+      throw new CustomError("name or categoryId or brandId field is required!", 400);
     }
       
 
     //check category and brand
-    if (!mongoose.Types.ObjectId.isValid(category_id)) {
-      throw new CustomError("Invalid category_id type(ObjectId)!", 400);
+    if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+      throw new CustomError("Invalid categoryId type(ObjectId)!", 400);
     }
 
-    const category = await Category.findOne({ _id: category_id });
+    const category = await Category.findOne({ _id: categoryId });
     if (!category) {
       throw new CustomError("Category not found on categories!", 404);
     }
-    if (!mongoose.Types.ObjectId.isValid(brand_id)) {
-      throw new CustomError("Invalid category_id type(ObjectId)!", 400);
+    if (!mongoose.Types.ObjectId.isValid(brandId)) {
+      throw new CustomError("Invalid categoryId type(ObjectId)!", 400);
     }
 
-    const brand = await Brand.findOne({ _id: brand_id });
+    const brand = await Brand.findOne({ _id: brandId });
     if (!brand) {
       throw new CustomError("Brand not found on brands!", 404);
     }
@@ -376,14 +382,17 @@ module.exports.product = {
       throw new CustomError("Product not found", 404);
     }
 
-
-    const { modifiedCount } = await Product.updateOne(
+    //delete _id if it is sent
+    if(req?.body?._id) delete req.body._id;
+    
+    //main update
+    const data = await Product.updateOne(
       { _id: req.params.id },
       req.body,
       { runValidators: true }
     );
 
-    if (modifiedCount < 1) {
+    if (data?.modifiedCount < 1) {
       throw new CustomError(
         "Something went wrong! - asked record is found, but it couldn't be updated!",
         500
@@ -393,7 +402,8 @@ module.exports.product = {
     res.status(202).json({
       error: false,
       message: "Product is partially updated!",
-      result: await Product.findOne({ _id: req.params.id }),
+      data,
+      new: await Product.findOne({ _id: req.params.id }),
     });
   },
   delete: async (req, res) => {

@@ -30,7 +30,7 @@ module.exports.firm = {
       error: false,
       message: "Firms are listed!",
       details: await res.getModelListDetails(Firm),
-      result: firms,
+      data: firms,
     });
   },
   create: async (req, res) => {
@@ -62,7 +62,7 @@ module.exports.firm = {
             schema: { 
                 error: false,
                 message: "A new firm is created!!",
-                result:{$ref: '#/definitions/Firm'} 
+                data:{$ref: '#/definitions/Firm'} 
             }
 
         }  
@@ -78,11 +78,11 @@ module.exports.firm = {
     if (!name || !phone || !address || !image) {
       throw new CustomError("name, phone, address, image fields are required!", 400);
     }
-    // if (!mongoose.Types.ObjectId.isValid(user_id)) {
+    // if (!mongoose.Types.ObjectId.isValid(userId)) {
     //   throw new CustomError("Invalid id type(ObjectId)!", 400);
     // }
 
-    // const user = await User.findOne({ _id: user_id });
+    // const user = await User.findOne({ _id: userId });
     // if (!user) {
     //   throw new CustomError("User not found on users!", 404);
     // }
@@ -91,7 +91,7 @@ module.exports.firm = {
     res.status(201).json({
       error: false,
       message: "A new firm is created!",
-      result: newFirm,
+      data: newFirm,
     });
   },
   read: async (req, res) => {
@@ -107,7 +107,7 @@ module.exports.firm = {
             schema: { 
                 error: false,
                 message:  "Firm is found!!",
-                result:{$ref: '#/definitions/Firm'} 
+                data:{$ref: '#/definitions/Firm'} 
             }
 
         }  
@@ -137,7 +137,7 @@ module.exports.firm = {
     res.status(200).json({
       error: false,
       message: "Firm is found!",
-      result: firm,
+      data: firm,
     });
   },
   update: async (req, res) => {
@@ -169,7 +169,8 @@ module.exports.firm = {
             schema: { 
                 error: false,
                 message:  "firm is updated!!",
-                result:{$ref: '#/definitions/Firm'} 
+                data:{modifiedCount:1},
+                new:{$ref: '#/definitions/Firm'} 
             }
 
         }  
@@ -209,15 +210,17 @@ module.exports.firm = {
       throw new CustomError("Firm not found", 404);
     }
 
+     //delete _id if it is sent
+     if(req?.body?._id) delete req.body._id;
     
 
-    const { modifiedCount } = await Firm.updateOne(
+    const data = await Firm.updateOne(
       { _id: req.params.id },
       req.body,
       { runValidators: true }
     );
 
-    if (modifiedCount < 1) {
+    if (data?.modifiedCount < 1) {
       throw new CustomError(
         "Something went wrong! - asked record is found, but it couldn't be updated!",
         500
@@ -227,7 +230,8 @@ module.exports.firm = {
     res.status(202).json({
       error: false,
       message: "Firm is updated!",
-      result: await Firm.findOne({ _id: req.params.id }),
+      data,
+      new: await Firm.findOne({ _id: req.params.id }),
     });
   },
   partialUpdate: async (req, res) => {
@@ -261,7 +265,8 @@ module.exports.firm = {
             schema: { 
                 error: false,
                 message: "Firm is partially updated!!",
-                result:{$ref: '#/definitions/Firm'} 
+                data:{modifiedCount:1},
+                new:{$ref: '#/definitions/Firm'} 
             }
 
         }  
@@ -300,14 +305,17 @@ module.exports.firm = {
       throw new CustomError("Firm not found", 404);
     }
 
-
-    const { modifiedCount } = await Firm.updateOne(
+ //delete _id if it is sent
+ if(req?.body?._id) delete req.body._id;
+    
+ 
+    const data = await Firm.updateOne(
       { _id: req.params.id },
       req.body,
       { runValidators: true }
     );
 
-    if (modifiedCount < 1) {
+    if (data?.modifiedCount < 1) {
       throw new CustomError(
         "Something went wrong! - asked record is found, but it couldn't be updated!",
         500
@@ -317,7 +325,8 @@ module.exports.firm = {
     res.status(202).json({
       error: false,
       message: "Firm is partially updated!",
-      result: await Firm.findOne({ _id: req.params.id }),
+      data,
+      new: await Firm.findOne({ _id: req.params.id }),
     });
   },
   delete: async (req, res) => {

@@ -3,17 +3,17 @@
 const { User } = require("../models/userModel");
 
 module.exports = async () => {
-  const adminUser = await User.findOne({ is_admin: true });
+  const adminUser = await User.findOne({ isAdmin: true });
   if (!adminUser) {
     await User.create({
       username: "adminuser",
       email: "adminuser@adminuser.com",
       password: "Aa*12345",
-      first_name: "adminfirst",
-      last_name: "adminlast",
-      is_active: true,
-      is_admin: true,
-      is_staff: false,
+      firstName: "adminfirst",
+      lastName: "adminlast",
+      isActive: true,
+      isAdmin: true,
+      isStaff: false,
     });
     console.log("admin user is added!");
   } else {

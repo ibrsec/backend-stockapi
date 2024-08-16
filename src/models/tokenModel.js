@@ -4,7 +4,7 @@ const { mongoose } = require("../configs/dbConnection");
 
 const TokenSchema = new mongoose.Schema(
   {
-    user_id: {
+    userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,

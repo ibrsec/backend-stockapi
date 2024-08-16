@@ -19,12 +19,12 @@ const ProductSchema = new mongoose.Schema(
       type: Number, 
       default: 0,   
     },
-    category_id:{
+    categoryId:{
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
       required: true,  
     },
-    brand_id:{
+    brandId:{
       type: mongoose.Schema.Types.ObjectId,
       ref: "Brand",
       required: true,  

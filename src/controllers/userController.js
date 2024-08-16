@@ -1,7 +1,10 @@
 "use strict";
 
+const jwt = require("jsonwebtoken");
 const { mongoose } = require("../configs/dbConnection");
 const CustomError = require("../errors/customError");
+const passwordEncryptor = require("../helpers/passwordEncryptor");
+const { Token } = require("../models/tokenModel");
 const { User } = require("../models/userModel");
 
 module.exports.user = {
@@ -30,19 +33,19 @@ module.exports.user = {
 
     //restrict listing user to non admin users = they wont see the admins
 
-    let customFilters = { is_admin: false, is_staff: false };
-    if (req.user?.is_admin) {
-      customFilters = {}; 
-    } else if (req?.user?.is_staff) {
-      customFilters = { is_admin: false };
+    let customFilters = { isAdmin: false, isStaff: false };
+    if (req.user?.isAdmin) {
+      customFilters = {};
+    } else if (req?.user?.isStaff) {
+      customFilters = { isAdmin: false };
     }
 
-    const users = await res.getModelList(User  , customFilters );
+    const users = await res.getModelList(User, customFilters);
     res.status(200).json({
       error: false,
       message: "Users are listed!",
-      details: await res.getModelListDetails(User  , customFilters ),
-      result: users,
+      details: await res.getModelListDetails(User, customFilters),
+      data: users,
     });
   },
   create: async (req, res) => {
@@ -55,7 +58,7 @@ module.exports.user = {
                 - Admin or staff or in-active users can be create.d just by admin users</br></br>
                 - Password type Rules- [lenght:8-16, at least: 1 upper, 1 lower, 1 number, 1 special[@$!%*?&]]</br>
                 - Email type Rules- --@--.--</br>
-                - Required fields: - username, email, password, first_name, last_name</br>
+                - Required fields: - username, email, password, firstName, lastName</br>
             `
             #swagger.parameters['body']={
                 in:'body',
@@ -64,11 +67,11 @@ module.exports.user = {
                     $username : 'testuser',
                     $email : 'testuser@email.com',
                     $password : 'Password1*',
-                    $first_name : 'firstname',
-                    $last_name : 'lastname',
-                    is_active : true,
-                    is_admin : false,
-                    is_staff : false,
+                    $firstName : 'firstname',
+                    $lastName : 'lastname',
+                    isActive : true,
+                    isAdmin : false,
+                    isStaff : false,
 
                 }
             }
@@ -77,39 +80,64 @@ module.exports.user = {
             schema: { 
                 error: false,
                 message: "A new user is created!!",
-                result:{$ref: '#/definitions/User'} 
+                token:"tokenkey",
+                bearer:{
+                  accessToken:"accestoken key",
+                  refreshToken:"refreshtoken key",
+                },
+                data:{$ref: '#/definitions/User'} 
             }
 
         }  
             #swagger.responses[400] = {
-            description:`Bad request - username,email,password, first_name, last_name fields are required!`
+            description:`Bad request - username,email,password, firstName, lastName fields are required!`
             }
 
 
 
         */
 
-    const { username, email, password, first_name, last_name } = req.body;
+    const { username, email, password, firstName, lastName } = req.body;
 
-    if (!username || !email || !password || !first_name || !last_name) {
+    if (!username || !email || !password || !firstName || !lastName) {
       throw new CustomError(
-        "username, email, password, first_name, last_name fields are required!",
+        "username, email, password, firstName, lastName fields are required!",
         400
       );
     }
 
-    if (!req?.user?.is_admin) {
+    if (!req?.user?.isAdmin) {
       //if user is not a admin user!
-      req.body.is_admin = false;
-      req.body.is_staff = false;
-      req.body.is_active = true;
+      req.body.isAdmin = false;
+      req.body.isStaff = false;
+      req.body.isActive = true;
     }
 
     const newUser = await User.create(req.body);
+
+    /* AUTO LOGIN */
+    // SimpleToken:
+    const tokenData = await Token.create({
+      userId: newUser._id,
+      token: passwordEncryptor(newUser._id + Date.now()),
+    });
+    // JWT:
+    const accessToken = jwt.sign(newUser.toJSON(), process.env.ACCESS_KEY, {
+      expiresIn: "30m",
+    });
+    const refreshToken = jwt.sign(
+      { _id: newUser._id, password: newUser.password },
+      process.env.REFRESH_KEY,
+      { expiresIn: "3d" }
+    );
+    /* AUTO LOGIN */
+
     res.status(201).json({
       error: false,
       message: "A new user is created!",
-      result: newUser,
+      token: tokenData.token,
+      bearer: { accessToken, refreshToken },
+      data: newUser,
     });
   },
   read: async (req, res) => {
@@ -128,7 +156,7 @@ module.exports.user = {
             schema: { 
                 error: false,
                 message: "User is found!",
-                result:{$ref: '#/definitions/User'} 
+                data:{$ref: '#/definitions/User'} 
             }
 
         }  
@@ -147,11 +175,11 @@ module.exports.user = {
       throw new CustomError("Invalid id type(ObjectId)!", 400);
     }
 
-    let customFilters = { is_admin: false, is_staff: false };
-    if (req.user?.is_admin) {
+    let customFilters = { isAdmin: false, isStaff: false };
+    if (req.user?.isAdmin) {
       customFilters = {};
-    } else if (req.user?.is_staff) {
-      customFilters = { is_admin: false };
+    } else if (req.user?.isStaff) {
+      customFilters = { isAdmin: false };
     }
 
     //ath bitince sil ->
@@ -166,7 +194,7 @@ module.exports.user = {
     res.status(200).json({
       error: false,
       message: "User is found!",
-      result: user,
+      data: user,
     });
   },
   update: async (req, res) => {
@@ -190,11 +218,11 @@ module.exports.user = {
                     $username : 'testuser',
                     $email : 'testuser@email.com',
                     $password : 'Password1*',
-                    $first_name : 'firstname',
-                    $last_name : 'lastname',
-                    is_active : true,
-                    is_admin : false,
-                    is_staff : false,
+                    $firstName : 'firstname',
+                    $lastName : 'lastname',
+                    isActive : true,
+                    isAdmin : false,
+                    isStaff : false,
 
                 }
             }
@@ -203,7 +231,8 @@ module.exports.user = {
             schema: { 
                 error: false,
                 message: "User is updated!!",
-                result:{$ref: '#/definitions/User'} 
+                data:{modifiedCount:1},
+                new:{$ref: '#/definitions/User'} 
             }
 
         }  
@@ -211,7 +240,7 @@ module.exports.user = {
             #swagger.responses[400] = {
                 description:`Bad request 
                     </br>- Invalid id type(ObjectId)!
-                    </br>- username, email, password, first_name, last_name fields are required!
+                    </br>- username, email, password, firstName, lastName fields are required!
                     </br>- non-admin users can't modify other users!
                     `
             }
@@ -230,11 +259,11 @@ module.exports.user = {
       throw new CustomError("Invalid id type(ObjectId)!", 400);
     }
 
-    const { username, email, password, first_name, last_name } = req.body;
+    const { username, email, password, firstName, lastName } = req.body;
 
-    if (!username || !email || !password || !first_name || !last_name) {
+    if (!username || !email || !password || !firstName || !lastName) {
       throw new CustomError(
-        "username,email,password, first_name, last_name fields are required!",
+        "username,email,password, firstName, lastName fields are required!",
         400
       );
     }
@@ -251,15 +280,15 @@ module.exports.user = {
     // - Normal users can't update other users
 
     /*--------open after => auth---------*
-    if (req.user?.is_admin) {
+    if (req.user?.isAdmin) {
       //admin user can modify all users!
 
-    } else if (req.user?.is_staff) {
+    } else if (req.user?.isStaff) {
       //staff user is request own user modification
-      if (user?.is_admin) {
+      if (user?.isAdmin) {
         //if staff try to modify admin
         throw new CustomError("Staff users can't modify the admin users!", 400);
-      } else if (user?.is_staff) {
+      } else if (user?.isStaff) {
         //id staff try to modify staff
         if (req.user?.userId !== req.params.id) {
           //staff can just modify himself, other staff users are forbidden to modify for him!
@@ -281,28 +310,27 @@ module.exports.user = {
 
     /*-----------------*/
 
-    if(!req?.user?.is_admin){ 
+    if (!req?.user?.isAdmin) {
       if (req.user?._id != req.params.id) {
         throw new CustomError("non-admin users can't modify other users!", 400);
       }
     }
 
-
     //admin staff or active modifications are accessible for just the admin users!
-    if (!req?.user?.is_admin) {
+    if (!req?.user?.isAdmin) {
       //if user is not a admin user!
-      req.body.is_admin = user?.is_admin;
-      req.body.is_staff = user?.is_staff;
-      req.body.is_active = user?.is_active;
+      req.body.isAdmin = user?.isAdmin;
+      req.body.isStaff = user?.isStaff;
+      req.body.isActive = user?.isActive;
     }
 
-    const { modifiedCount } = await User.updateOne(
+    const data = await User.updateOne(
       { _id: req.params.id },
       req.body,
       { runValidators: true }
     );
 
-    if (modifiedCount < 1) {
+    if (data?.modifiedCount < 1) {
       throw new CustomError(
         "Something went wrong! - asked record is found, but it couldn't be updated!",
         500
@@ -312,7 +340,8 @@ module.exports.user = {
     res.status(202).json({
       error: false,
       message: "User is updated!",
-      result: await User.findOne({ _id: req.params.id }),
+      data,
+      new: await User.findOne({ _id: req.params.id }),
     });
   },
   partialUpdate: async (req, res) => {
@@ -327,7 +356,7 @@ module.exports.user = {
                 - Admin, staff or active modifications are accessible for just the admin users!</br> </br>
                 - Password type Rules- [lenght:8-16, at least: 1 upper, 1 lower, 1 number, 1 special[@$!%*?&]]</br>
                 - Email type Rules- --@--.--</br>
-                - Required fields: - Aat least one of the username, email, password, first_name, last_name, is_active, is_admin, is_staff fields is required!</br>
+                - Required fields: - Aat least one of the username, email, password, firstName, lastName, isActive, isAdmin, isStaff fields is required!</br>
             `
             #swagger.parameters['body']={
                 in:'body',
@@ -337,11 +366,11 @@ module.exports.user = {
                     username : 'testuser',
                     email : 'testuser@email.com',
                     password : 'Password1*',
-                    first_name : 'firstname',
-                    last_name : 'lastname',
-                    is_active : true,
-                    is_admin : false,
-                    is_staff : false,
+                    firstName : 'firstname',
+                    lastName : 'lastname',
+                    isActive : true,
+                    isAdmin : false,
+                    isStaff : false,
 
                 }
             }
@@ -350,7 +379,8 @@ module.exports.user = {
             schema: { 
                 error: false,
                 message: "User is partially updated!!",
-                result:{$ref: '#/definitions/User'} 
+                data:{modifiedCount:1},
+                new:{$ref: '#/definitions/User'} 
             }
 
         }  
@@ -358,7 +388,7 @@ module.exports.user = {
             #swagger.responses[400] = {
                 description:`Bad request 
                     </br>- Invalid id type(ObjectId)!
-                    </br>- At least one field of username, email, password, first_name, last_name,is_active,is_admin,is_staff fields is required!
+                    </br>- At least one field of username, email, password, firstName, lastName,isActive,isAdmin,isStaff fields is required!
                     </br>- non-admin users can't modify other users!
                     
                     `
@@ -378,11 +408,31 @@ module.exports.user = {
       throw new CustomError("Invalid id type(ObjectId)!", 400);
     }
 
-    const { username, email, password, first_name, last_name, is_active, is_admin, is_staff } = req.body;
+    const {
+      username,
+      email,
+      password,
+      firstName,
+      lastName,
+      isActive,
+      isAdmin,
+      isStaff,
+    } = req.body;
 
-    if (!(username || email || password || first_name || last_name || is_active || is_admin || is_staff)) {
+    if (
+      !(
+        username ||
+        email ||
+        password ||
+        firstName ||
+        lastName ||
+        isActive ||
+        isAdmin ||
+        isStaff
+      )
+    ) {
       throw new CustomError(
-        "At least one field of username, email, password, first_name, last_name,is_active,is_admin,is_staff fields is required!",
+        "At least one field of username, email, password, firstName, lastName,isActive,isAdmin,isStaff fields is required!",
         400
       );
     }
@@ -399,15 +449,15 @@ module.exports.user = {
     // - Normal users can't update other users
 
     /*--------open after => auth---------*
-    if (req.user?.is_admin) {
+    if (req.user?.isAdmin) {
       //admin user can modify all users!
 
-    } else if (req.user?.is_staff) {
+    } else if (req.user?.isStaff) {
       //staff user is request owner
-      if (user?.is_admin) {
+      if (user?.isAdmin) {
         //if staff try to modify admin
         throw new CustomError("Staff users can't modify the admin users!", 400);
-      } else if (user?.is_staff) {
+      } else if (user?.isStaff) {
         //id staff try to modify staff
         if (req.user?.userId !== req.params.id) {
           //staff can just modify himself, other staff users are forbidden to modify for him!
@@ -430,19 +480,18 @@ module.exports.user = {
 
 
     /*-----------------*/
-    if(!req?.user?.is_admin){
+    if (!req?.user?.isAdmin) {
       if (req.user?._id != req.params.id) {
         throw new CustomError("non-admin users can't modify other users!", 400);
       }
     }
 
-
     //admin staff or active modifications are accessible for just the admin users!
-    if (!req?.user?.is_admin) {
+    if (!req?.user?.isAdmin) {
       //if user is not a admin user!
-      req.body.is_admin = user?.is_admin;
-      req.body.is_staff = user?.is_staff;
-      req.body.is_active = user?.is_active;
+      req.body.isAdmin = user?.isAdmin;
+      req.body.isStaff = user?.isStaff;
+      req.body.isActive = user?.isActive;
     }
 
     const { modifiedCount } = await User.updateOne(
@@ -465,8 +514,7 @@ module.exports.user = {
     });
   },
   delete: async (req, res) => {
-
- /*
+    /*
             #swagger.tags = ["Users"]
             #swagger.summary = "Delete a user"
             #swagger.description = `
@@ -492,24 +540,23 @@ module.exports.user = {
 
         */
 
-            if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-                throw new CustomError("Invalid id type(ObjectId)!", 400);
-              }
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      throw new CustomError("Invalid id type(ObjectId)!", 400);
+    }
 
-          
-              const user = await User.findOne({ _id: req.params.id });
-          
-              if (!user) {
-                throw new CustomError("User not found!", 404);
-              }
-          
-              const {deletedCount} = await User.deleteOne({_id:req.params.id});
-              if(deletedCount < 1){
-                throw new CustomError('Something went wrong! - asked record is found, but it couldn\'t be deleted!',500)
-              }
-              res.sendStatus(204);
+    const user = await User.findOne({ _id: req.params.id });
 
+    if (!user) {
+      throw new CustomError("User not found!", 404);
+    }
 
-
+    const { deletedCount } = await User.deleteOne({ _id: req.params.id });
+    if (deletedCount < 1) {
+      throw new CustomError(
+        "Something went wrong! - asked record is found, but it couldn't be deleted!",
+        500
+      );
+    }
+    res.sendStatus(204);
   },
 };

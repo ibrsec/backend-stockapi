@@ -12,16 +12,16 @@ module.exports = async (req, res, next) => {
       const tokenKey = authHeader.split(" ")[1];
       if (tokenKey) {
         const tokenData = await Token.findOne({ token: tokenKey }).populate(
-          "user_id"
+          "userId"
         );
         console.log('tokenData', tokenData)
         if (tokenData) {
           req.user = {
-            _id: tokenData?.user_id?._id,
-            username: tokenData?.user_id?.username,
-            is_admin: tokenData?.user_id?.is_admin,
-            is_active: tokenData?.user_id?.is_active,
-            is_staff: tokenData?.user_id?.is_staff,
+            _id: tokenData?.userId?._id,
+            username: tokenData?.userId?.username,
+            isAdmin: tokenData?.userId?.isAdmin,
+            isActive: tokenData?.userId?.isActive,
+            isStaff: tokenData?.userId?.isStaff,
           };
         }
       }
@@ -34,9 +34,9 @@ module.exports = async (req, res, next) => {
             req.user = {
               _id: decoded?._id,
               username: decoded?.username,
-              is_admin: decoded?.is_admin,
-              is_active: decoded?.is_active,
-              is_staff: decoded?.is_staff,
+              isAdmin: decoded?.isAdmin,
+              isActive: decoded?.isActive,
+              isStaff: decoded?.isStaff,
             };
           }
         });

@@ -30,7 +30,7 @@ module.exports.brand = {
       error: false,
       message: "Brands are listed!",
       details: await res.getModelListDetails(Brand),
-      result: brands,
+      data: brands,
     });
   },
   create: async (req, res) => {
@@ -57,7 +57,7 @@ module.exports.brand = {
             schema: { 
                 error: false,
                 message: "A new brand is created!!",
-                result:{$ref: '#/definitions/Brand'} 
+                data:{$ref: '#/definitions/Brand'} 
             }
 
         }  
@@ -73,11 +73,11 @@ module.exports.brand = {
     if (!name || !image ) {
       throw new CustomError("name, image fields are required!", 400);
     }
-    // if (!mongoose.Types.ObjectId.isValid(user_id)) {
+    // if (!mongoose.Types.ObjectId.isValid(userId)) {
     //   throw new CustomError("Invalid id type(ObjectId)!", 400);
     // }
 
-    // const user = await User.findOne({ _id: user_id });
+    // const user = await User.findOne({ _id: userId });
     // if (!user) {
     //   throw new CustomError("User not found on users!", 404);
     // }
@@ -86,7 +86,7 @@ module.exports.brand = {
     res.status(201).json({
       error: false,
       message: "A new brand is created!",
-      result: newBrand,
+      data: newBrand,
     });
   },
   read: async (req, res) => {
@@ -102,7 +102,7 @@ module.exports.brand = {
             schema: { 
                 error: false,
                 message:  "Brand is found!!",
-                result:{$ref: '#/definitions/Brand'} 
+                data:{$ref: '#/definitions/Brand'} 
             }
 
         }  
@@ -132,7 +132,7 @@ module.exports.brand = {
     res.status(200).json({
       error: false,
       message: "Brand is found!",
-      result: brand,
+      data: brand,
     });
   },
   update: async (req, res) => {
@@ -159,7 +159,8 @@ module.exports.brand = {
             schema: { 
                 error: false,
                 message:  "Brand is updated!!",
-                result:{$ref: '#/definitions/Brand'} 
+                data:{modifiedCount:1},
+                new:{$ref: '#/definitions/Brand'} 
             }
 
         }  
@@ -199,15 +200,18 @@ module.exports.brand = {
       throw new CustomError("Brand not found", 404);
     }
 
+         //delete _id if it is sent
+         if(req?.body?._id) delete req.body._id;
     
 
-    const { modifiedCount } = await Brand.updateOne(
+
+    const data = await Brand.updateOne(
       { _id: req.params.id },
       req.body,
       { runValidators: true }
     );
 
-    if (modifiedCount < 1) {
+    if (data?.modifiedCount < 1) {
       throw new CustomError(
         "Something went wrong! - asked record is found, but it couldn't be updated!",
         500
@@ -217,7 +221,8 @@ module.exports.brand = {
     res.status(202).json({
       error: false,
       message: "Brand is updated!",
-      result: await Brand.findOne({ _id: req.params.id }),
+      data,
+      new: await Brand.findOne({ _id: req.params.id }),
     });
   },
   partialUpdate: async (req, res) => {
@@ -247,7 +252,8 @@ module.exports.brand = {
             schema: { 
                 error: false,
                 message: "Brand is partially updated!!",
-                result:{$ref: '#/definitions/Brand'} 
+                data:{modifiedCount:1},
+                new:{$ref: '#/definitions/Brand'} 
             }
 
         }  
@@ -286,14 +292,18 @@ module.exports.brand = {
       throw new CustomError("Brand not found", 404);
     }
 
+         //delete _id if it is sent
+         if(req?.body?._id) delete req.body._id;
+    
 
-    const { modifiedCount } = await Brand.updateOne(
+
+    const data = await Brand.updateOne(
       { _id: req.params.id },
       req.body,
       { runValidators: true }
     );
 
-    if (modifiedCount < 1) {
+    if (data?.modifiedCount < 1) {
       throw new CustomError(
         "Something went wrong! - asked record is found, but it couldn't be updated!",
         500
@@ -303,7 +313,8 @@ module.exports.brand = {
     res.status(202).json({
       error: false,
       message: "Brand is partially updated!",
-      result: await Brand.findOne({ _id: req.params.id }),
+      data,
+      new: await Brand.findOne({ _id: req.params.id }),
     });
   },
   delete: async (req, res) => {

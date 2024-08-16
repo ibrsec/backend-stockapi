@@ -1,5 +1,6 @@
 "use strict";
 
+const { Token } = require("../models/tokenModel");
 const { User } = require("../models/userModel");
 
 module.exports = async () => {
@@ -10,6 +11,13 @@ module.exports = async () => {
     .catch((err) => {
       console.log("users couldn't be cleaned!", err);
     });
+  Token.deleteMany()
+    .then(() => {
+      console.log("tokens are cleaned!");
+    })
+    .catch((err) => {
+      console.log("tokens couldn't be cleaned!", err);
+    });
 
     try{
 
@@ -18,18 +26,18 @@ module.exports = async () => {
             email: "normal1@normal1.com",
             password:
             "Aa*12345",
-            is_active: true,
-            is_admin: false,
-            is_staff: false,
+            isActive: true,
+            isAdmin: false,
+            isStaff: false,
         });
         await User.create({
             username: "normal2",
             email: "normal2@normal2.com",
             password:
             "Aa*12345",
-            is_active: true,
-            is_admin: false,
-            is_staff: false,
+            isActive: true,
+            isAdmin: false,
+            isStaff: false,
         });
 
 
@@ -39,18 +47,18 @@ module.exports = async () => {
             email: "staff1@staff1.com",
             password:
             "Aa*12345",
-            is_active: true,
-            is_admin: false,
-            is_staff: true,
+            isActive: true,
+            isAdmin: false,
+            isStaff: true,
         });
         await User.create({
             username: "staff2",
             email: "staff2@staff2.com",
             password:
             "Aa*12345",
-            is_active: true,
-            is_admin: false,
-            is_staff: true,
+            isActive: true,
+            isAdmin: false,
+            isStaff: true,
         });
 
 
@@ -59,9 +67,9 @@ module.exports = async () => {
             email: "passive@passive.com",
             password:
             "Aa*12345",
-            is_active: false,
-            is_admin: false,
-            is_staff: false,
+            isActive: false,
+            isAdmin: false,
+            isStaff: false,
         });
 
         console.log('Users are added succeessfully!');

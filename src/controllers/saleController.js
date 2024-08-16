@@ -30,15 +30,15 @@ module.exports.sale = {
       */
 
     const sales = await res.getModelList(Sale, {}, [
-      "product_id",
-      "brand_id",
-      "user_id",
+      "productId",
+      "brandId",
+      "userId",
     ]);
     res.status(200).json({
       error: false,
       message: "Sales are listed!",
       details: await res.getModelListDetails(Sale),
-      result: sales,
+      data: sales,
     });
   },
   create: async (req, res) => {
@@ -48,14 +48,14 @@ module.exports.sale = {
           #swagger.description = `
               Create a new sale!</br></br>
               <b>Permission= Loginned User</b></br>   
-              - product_id should exist on products</br> 
+              - productId should exist on products</br> 
                </br>
           `
           #swagger.parameters['body']={
               in:'body',
               required:true,
               schema:{
-                  $product_id : '66b9fddcc29ab216e263b04f',  
+                  $productId : '66b9fddcc29ab216e263b04f',  
                   $quantity: 150,
                   $price: 50,
               }
@@ -65,14 +65,14 @@ module.exports.sale = {
           schema: { 
               error: false,
               message: "A new sale is created!!",
-              result:{$ref: '#/definitions/Sale'} 
+              data:{$ref: '#/definitions/Sale'} 
           }
   
       }  
           #swagger.responses[400] = {
           description:`Bad request:
-                        </br> - product_id, price, quantity fields are required!
-                        </br> - Invalid brand_id, user_id, product_id type(ObjectId)!
+                        </br> - productId, price, quantity fields are required!
+                        </br> - Invalid brandId, userId, productId type(ObjectId)!
                         </br> - Invalid quantity - it can\'t be less than 1!
                       `
           }
@@ -87,11 +87,11 @@ module.exports.sale = {
   
   
       */
-    const { product_id, price, quantity } = req.body;
+    const { productId, price, quantity } = req.body;
 
-    if (!product_id || !price || !quantity) {
+    if (!productId || !price || !quantity) {
       throw new CustomError(
-        "product_id, price, quantity fields are required!",
+        "productId, price, quantity fields are required!",
         400
       );
     }
@@ -100,39 +100,39 @@ module.exports.sale = {
     }
 
     //check product, user, firm and brand
-    if (!mongoose.Types.ObjectId.isValid(product_id)) {
-      throw new CustomError("Invalid product_id type(ObjectId)!", 400);
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      throw new CustomError("Invalid productId type(ObjectId)!", 400);
     }
 
-    const product = await Product.findOne({ _id: product_id });
+    const product = await Product.findOne({ _id: productId });
     if (!product) {
       throw new CustomError("Product not found on products!", 404);
     }
 
     //---
 
-    //user_id comes from req user
-    req.body.user_id = req.user?._id;
+    //userId comes from req user
+    req.body.userId = req.user?._id;
 
-    //brand_id comes from product's brand_id
-    req.body.brand_id = product?.brand_id;
+    //brandId comes from product's brandId
+    req.body.brandId = product?.brandId;
 
-    const { user_id, brand_id } = req.body;
+    const { userId, brandId } = req.body;
 
-    if (!mongoose.Types.ObjectId.isValid(user_id)) {
-      throw new CustomError("Invalid user_id type(ObjectId)!", 400);
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      throw new CustomError("Invalid userId type(ObjectId)!", 400);
     }
 
-    const user = await User.findOne({ _id: user_id });
+    const user = await User.findOne({ _id: userId });
     if (!user) {
       throw new CustomError("User not found on users!", 404);
     }
 
-    if (!mongoose.Types.ObjectId.isValid(brand_id)) {
-      throw new CustomError("Invalid brand_id type(ObjectId)!", 400);
+    if (!mongoose.Types.ObjectId.isValid(brandId)) {
+      throw new CustomError("Invalid brandId type(ObjectId)!", 400);
     }
 
-    const brand = await Brand.findOne({ _id: brand_id });
+    const brand = await Brand.findOne({ _id: brandId });
     if (!brand) {
       throw new CustomError("Brand not found on brands!", 404);
     }
@@ -147,7 +147,7 @@ module.exports.sale = {
     const newSale = await Sale.create(req.body);
     // increase the product quantity
     const updateProductQuantity = await Product.updateOne(
-      { _id: product_id },
+      { _id: productId },
       { quantity: product.quantity - req.body.quantity },
       { runValidators: true }
     );
@@ -160,7 +160,7 @@ module.exports.sale = {
     res.status(201).json({
       error: false,
       message: "A new sale is created!" + modifyMessage,
-      result: newSale,
+      data: newSale,
     });
   },
   read: async (req, res) => {
@@ -176,7 +176,7 @@ module.exports.sale = {
           schema: { 
               error: false,
               message:  "Sale is found!!",
-              result:{$ref: '#/definitions/Sale'} 
+              data:{$ref: '#/definitions/Sale'} 
           }
   
       }  
@@ -198,9 +198,9 @@ module.exports.sale = {
     }
 
     const sale = await Sale.findOne({ _id: req.params.id }).populate([
-      "product_id",
-      "brand_id",
-      "user_id",
+      "productId",
+      "brandId",
+      "userId",
     ]);
 
     if (!sale) {
@@ -210,7 +210,7 @@ module.exports.sale = {
     res.status(200).json({
       error: false,
       message: "Sale is found!",
-      result: sale,
+      data: sale,
     });
   },
   update: async (req, res) => {
@@ -220,14 +220,14 @@ module.exports.sale = {
             #swagger.description = `
                 Update a new sale by id!</br></br>
                 <b>Permission= Loginned User</b></br>  
-                - product_id should exist on products</br> 
+                - productId should exist on products</br> 
                   </br>
             `
             #swagger.parameters['body']={
                 in:'body',
                 required:true,
                 schema:{
-                    $product_id: '66b9fddcc29ab216e263b04f',  
+                    $productId: '66b9fddcc29ab216e263b04f',  
                     $quantity: 150,
                     $price: 50,
                 }
@@ -237,14 +237,15 @@ module.exports.sale = {
             schema: { 
                 error: false,
                 message:  "Sale is updated!!",
-                result:{$ref: '#/definitions/Sale'} 
+                data:{modifiedCount:1},
+                new:{$ref: '#/definitions/Sale'} 
             }
 
         }  
             #swagger.responses[400] = {
             description:`Bad request: 
-                      </br>-product_id, price, quantity fields are required!
-                      </br> - Invalid param id, brand_id, user_id, product_id type(ObjectId)!
+                      </br>-productId, price, quantity fields are required!
+                      </br> - Invalid param id, brandId, userId, productId type(ObjectId)!
                       </br> - Invalid quantity - it can\'t be less than 1!
                       `
             }
@@ -269,11 +270,11 @@ module.exports.sale = {
       throw new CustomError("Invalid param id type(ObjectId)!", 400);
     }
 
-    const { product_id, price, quantity } = req.body;
+    const { productId, price, quantity } = req.body;
 
-    if (!product_id || !price || !quantity) {
+    if (!productId || !price || !quantity) {
       throw new CustomError(
-        "product_id, price, quantity fields are required!",
+        "productId, price, quantity fields are required!",
         400
       );
     }
@@ -284,39 +285,39 @@ module.exports.sale = {
 
     //check user, firm and brand
 
-    if (!mongoose.Types.ObjectId.isValid(product_id)) {
-      throw new CustomError("Invalid product_id type(ObjectId)!", 400);
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      throw new CustomError("Invalid productId type(ObjectId)!", 400);
     }
 
-    const product = await Product.findOne({ _id: product_id });
+    const product = await Product.findOne({ _id: productId });
     if (!product) {
       throw new CustomError("Product not found on products!", 404);
     }
 
     //---
 
-    //user_id comes from req user
-    req.body.user_id = req.user?._id;
+    //userId comes from req user
+    req.body.userId = req.user?._id;
 
-    //brand_id comes from product's brand_id
-    req.body.brand_id = product?.brand_id;
+    //brandId comes from product's brandId
+    req.body.brandId = product?.brandId;
 
-    const { user_id, brand_id } = req.body;
+    const { userId, brandId } = req.body;
 
-    if (!mongoose.Types.ObjectId.isValid(user_id)) {
-      throw new CustomError("Invalid user_id type(ObjectId)!", 400);
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      throw new CustomError("Invalid userId type(ObjectId)!", 400);
     }
 
-    const user = await User.findOne({ _id: user_id });
+    const user = await User.findOne({ _id: userId });
     if (!user) {
       throw new CustomError("User not found on users!", 404);
     }
 
-    if (!mongoose.Types.ObjectId.isValid(brand_id)) {
-      throw new CustomError("Invalid brand_id type(ObjectId)!", 400);
+    if (!mongoose.Types.ObjectId.isValid(brandId)) {
+      throw new CustomError("Invalid brandId type(ObjectId)!", 400);
     }
 
-    const brand = await Brand.findOne({ _id: brand_id });
+    const brand = await Brand.findOne({ _id: brandId });
     if (!brand) {
       throw new CustomError("Brand not found on brands!", 404);
     }
@@ -330,7 +331,7 @@ module.exports.sale = {
     const updateQuantityAmount = quantity - saleData?.quantity;
 
     //control of if quantity of product is enough for update!
-    if (saleData?.product_id == product_id) {
+    if (saleData?.productId == productId) {
       //product is not changing so
       //quantity is already included products quantity
       if (updateQuantityAmount > 0) {
@@ -353,13 +354,13 @@ module.exports.sale = {
     }
 
     //make main update at sale->
-    const { modifiedCount } = await Sale.updateOne(
+    const data = await Sale.updateOne(
       { _id: req.params.id },
       req.body,
       { runValidators: true }
     );
 
-    if (modifiedCount < 1) {
+    if (data?.modifiedCount < 1) {
       throw new CustomError(
         "Something went wrong! - asked record is found, but it couldn't be updated!",
         500
@@ -372,16 +373,16 @@ module.exports.sale = {
     let modifyMessage = "";
 
     //update de product id degisirse -> yapialcak islemler neler olsun
-    if (saleData?.product_id != product_id) {
+    if (saleData?.productId != productId) {
       //product id degisirseek eski olandan quantity cikarilacak yeni olana eklenecek
       //quantityde degisirse eski quantity eski productan cikacak, yeni quantity yeni producta eklenecek!
 
       const oldProduct = await Product.findOne({
-        _id: saleData?.product_id,
+        _id: saleData?.productId,
       });
       //add  old product's quantity
       const oldProductUpdateQuantity = await Product.updateOne(
-        { _id: saleData?.product_id },
+        { _id: saleData?.productId },
         { quantity: oldProduct.quantity + oldQuantity },
         { runValidators: true }
       );
@@ -393,7 +394,7 @@ module.exports.sale = {
 
       //delete quantity from new product
       const updateQuantityofProduct = await Product.updateOne(
-        { _id: product_id },
+        { _id: productId },
         { quantity: product.quantity - updatedSale?.quantity }
       );
 
@@ -404,7 +405,7 @@ module.exports.sale = {
     } else {
       //if product id is not changed!
       const updateQuantityofProduct = await Product.updateOne(
-        { _id: product_id },
+        { _id: productId },
         { quantity: product.quantity - (newQuantity - oldQuantity) }
       );
 
@@ -417,7 +418,8 @@ module.exports.sale = {
     res.status(202).json({
       error: false,
       message: "Sale is updated!" + modifyMessage,
-      result: updatedSale,
+      data,
+      new: updatedSale,
     });
   },
   partialUpdate: async (req, res) => {
@@ -427,15 +429,15 @@ module.exports.sale = {
             #swagger.description = `
                 Partially Update a new sale by id!</br></br>
                 <b>Permission= Loginned User</b></br>  
-                - product_id should exist on products</br>  
+                - productId should exist on products</br>  
                   </br>
             `
             #swagger.parameters['body']={
                 in:'body',
-                description:"At least one of the product_id, firm_id, price, quantity field is required!",
+                description:"At least one of the productId, firmId, price, quantity field is required!",
                 required:true,
                 schema:{
-                    product_id : '66b9fddcc29ab216e263b04f',  
+                    productId : '66b9fddcc29ab216e263b04f',  
                     quantity: 150,
                     price: 50,
 
@@ -446,14 +448,15 @@ module.exports.sale = {
             schema: { 
                 error: false,
                 message: "Sale is partially updated!!",
-                result:{$ref: '#/definitions/Sale'} 
+                data:{modifiedCount:1},
+                new:{$ref: '#/definitions/Sale'} 
             }
 
         }  
             #swagger.responses[400] = {
             description:`Bad request: 
-                      </br>- product_id or price or quantity field is required!
-                      </br>- Invalid param id, brand_id, user_id, product_id type(ObjectId)!!
+                      </br>- productId or price or quantity field is required!
+                      </br>- Invalid param id, brandId, userId, productId type(ObjectId)!!
                       </br>- Invalid quantity - it can\'t be less than 1!
                       `
             }
@@ -477,11 +480,11 @@ module.exports.sale = {
       throw new CustomError("Invalid id type(ObjectId)!", 400);
     }
 
-    const { product_id, price, quantity } = req.body;
+    const { productId, price, quantity } = req.body;
 
-    if (!(product_id || price || quantity)) {
+    if (!(productId || price || quantity)) {
       throw new CustomError(
-        "product_id or price or quantity field is required!",
+        "productId or price or quantity field is required!",
         400
       );
     }
@@ -494,42 +497,42 @@ module.exports.sale = {
     let product = null;
     let firm = null;
 
-    if (product_id) {
-      if (!mongoose.Types.ObjectId.isValid(product_id)) {
-        throw new CustomError("Invalid product_id type(ObjectId)!", 400);
+    if (productId) {
+      if (!mongoose.Types.ObjectId.isValid(productId)) {
+        throw new CustomError("Invalid productId type(ObjectId)!", 400);
       }
 
-      product = await Product.findOne({ _id: product_id });
+      product = await Product.findOne({ _id: productId });
       if (!product) {
         throw new CustomError("Product not found on products!", 404);
       }
-      //brand_id comes from product's brand_id
-      req.body.brand_id = product?.brand_id;
+      //brandId comes from product's brandId
+      req.body.brandId = product?.brandId;
     } else {
     }
 
     //---
 
-    //user_id comes from req user
-    req.body.user_id = req.user?._id;
+    //userId comes from req user
+    req.body.userId = req.user?._id;
 
-    const { user_id, brand_id } = req.body;
+    const { userId, brandId } = req.body;
 
-    if (!mongoose.Types.ObjectId.isValid(user_id)) {
-      throw new CustomError("Invalid user_id type(ObjectId)!", 400);
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      throw new CustomError("Invalid userId type(ObjectId)!", 400);
     }
 
-    const user = await User.findOne({ _id: user_id });
+    const user = await User.findOne({ _id: userId });
     if (!user) {
       throw new CustomError("User not found on users!", 404);
     }
 
-    if (brand_id) {
-      if (!mongoose.Types.ObjectId.isValid(brand_id)) {
-        throw new CustomError("Invalid brand_id type(ObjectId)!", 400);
+    if (brandId) {
+      if (!mongoose.Types.ObjectId.isValid(brandId)) {
+        throw new CustomError("Invalid brandId type(ObjectId)!", 400);
       }
 
-      const brand = await Brand.findOne({ _id: brand_id });
+      const brand = await Brand.findOne({ _id: brandId });
       if (!brand) {
         throw new CustomError("Brand not found on brands!", 404);
       }
@@ -540,23 +543,23 @@ module.exports.sale = {
       throw new CustomError("Sale not found", 404);
     }
     const oldProduct = await Product.findOne({
-      _id: saleData?.product_id,
+      _id: saleData?.productId,
     });
 
     const oldQuantity = saleData?.quantity;
 
     //control of if quantity of product is enough for update!
 
-    //quantity gonderildiyse product_id yeni gonderildiyse
-    //quantity gonderildiyse product_id yeni gonderilmediyse
-    //quantity gonderilmediyse product_id yeni gonderildiyse
-    //quantity gonderilmediyse product_id yeni gonderilmediyse
+    //quantity gonderildiyse productId yeni gonderildiyse
+    //quantity gonderildiyse productId yeni gonderilmediyse
+    //quantity gonderilmediyse productId yeni gonderildiyse
+    //quantity gonderilmediyse productId yeni gonderilmediyse
 
     if (quantity) {
       //quantitiy is exist
       const updateQuantityAmount = quantity - oldQuantity;
-      if (product_id) {
-        if (saleData?.product_id == product_id) {
+      if (productId) {
+        if (saleData?.productId == productId) {
           //product is not changing so
           //quantity is already included products quantity
           if (updateQuantityAmount > 0) {
@@ -591,8 +594,8 @@ module.exports.sale = {
       }
     } else {
       //quanitity is not exist
-      if (product_id) {
-        if (product_id != saleData.product_id) {
+      if (productId) {
+        if (productId != saleData.productId) {
           if (product?.quantity < saleData?.quantity) {
             throw new CustomError(
               `Insufficient product quantity! - new product's quantity is not enough - new product quantity:${product?.quantity}, sale quantity :${saleData?.quantity}`,
@@ -604,13 +607,13 @@ module.exports.sale = {
     }
 
     //MAIN UPDATE PART ->
-    const { modifiedCount } = await Sale.updateOne(
+    const data = await Sale.updateOne(
       { _id: req.params.id },
       req.body,
       { runValidators: true }
     );
 
-    if (modifiedCount < 1) {
+    if (data?.modifiedCount < 1) {
       throw new CustomError(
         "Something went wrong! - asked record is found, but it couldn't be updated!",
         500
@@ -623,14 +626,14 @@ module.exports.sale = {
     let modifyMessage = "";
 
     //update de product id degisirse -> yapialcak islemler neler olsun
-    if (product_id) {
+    if (productId) {
       // if product id is not null
-      if (saleData?.product_id != product_id) {
+      if (saleData?.productId != productId) {
         //product id degisirseek eski olandan quantity cikarilacak yeni olana eklenecek
         //quantityde degisirse eski quantity eski productan cikacak, yeni quantity yeni producta eklenecek!
 
         const oldProductUpdateQuantity = await Product.updateOne(
-          { _id: saleData?.product_id },
+          { _id: saleData?.productId },
           { quantity: oldProduct.quantity + oldQuantity },
           { runValidators: true }
         );
@@ -641,7 +644,7 @@ module.exports.sale = {
         }
 
         const updateQuantityofProduct = await Product.updateOne(
-          { _id: product_id },
+          { _id: productId },
           { quantity: product.quantity - updatedSale?.quantity }
         );
         if (updateQuantityofProduct?.modifiedCount < 1) {
@@ -650,7 +653,7 @@ module.exports.sale = {
         }
       } else {
         const updateQuantityofProduct = await Product.updateOne(
-          { _id: product_id },
+          { _id: productId },
           { quantity: product.quantity - (newQuantity - oldQuantity) }
         );
         if (updateQuantityofProduct?.modifiedCount < 1) {
@@ -659,9 +662,9 @@ module.exports.sale = {
         }
       }
     } else {
-      //if product_id is null
+      //if productId is null
       const updateQuantityofProduct = await Product.updateOne(
-        { _id: saleData?.product_id },
+        { _id: saleData?.productId },
         { quantity: oldProduct.quantity - (newQuantity - oldQuantity) }
       );
       if (updateQuantityofProduct?.modifiedCount < 1) {
@@ -673,7 +676,8 @@ module.exports.sale = {
     res.status(202).json({
       error: false,
       message: "Sale is partially updated!" + modifyMessage,
-      result: updatedSale,
+      data,
+      new: updatedSale,
     });
   },
   delete: async (req, res) => {
@@ -727,10 +731,10 @@ module.exports.sale = {
       );
     }
 
-    const product = await Product.findOne({ _id: sale?.product_id });
+    const product = await Product.findOne({ _id: sale?.productId });
 
     const deleteProductQuantity = await Product.updateOne(
-      { _id: sale?.product_id },
+      { _id: sale?.productId },
       { quantity: product?.quantity + sale.quantity }
     );
 

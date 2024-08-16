@@ -58,7 +58,7 @@
           "Users"
         ],
         "summary": "Create new User",
-        "description": "  create a new user!</br></br>  <b>Permission= No Permission</b></br>   - Admin or staff or in-active users can be create.d just by admin users</br></br>  - Password type Rules- [lenght:8-16, at least: 1 upper, 1 lower, 1 number, 1 special[@$!%*?&]]</br>  - Email type Rules- --@--.--</br>  - Required fields: - username, email, password, first_name, last_name</br>  ",
+        "description": "  create a new user!</br></br>  <b>Permission= No Permission</b></br>   - Admin or staff or in-active users can be create.d just by admin users</br></br>  - Password type Rules- [lenght:8-16, at least: 1 upper, 1 lower, 1 number, 1 special[@$!%*?&]]</br>  - Email type Rules- --@--.--</br>  - Required fields: - username, email, password, firstName, lastName</br>  ",
         "parameters": [
           {
             "name": "body",
@@ -79,23 +79,23 @@
                   "type": "string",
                   "example": "Password1*"
                 },
-                "first_name": {
+                "firstName": {
                   "type": "string",
                   "example": "firstname"
                 },
-                "last_name": {
+                "lastName": {
                   "type": "string",
                   "example": "lastname"
                 },
-                "is_active": {
+                "isActive": {
                   "type": "boolean",
                   "example": true
                 },
-                "is_admin": {
+                "isAdmin": {
                   "type": "boolean",
                   "example": false
                 },
-                "is_staff": {
+                "isStaff": {
                   "type": "boolean",
                   "example": false
                 }
@@ -104,8 +104,8 @@
                 "username",
                 "email",
                 "password",
-                "first_name",
-                "last_name"
+                "firstName",
+                "lastName"
               ]
             }
           }
@@ -124,7 +124,24 @@
                   "type": "string",
                   "example": "A new user is created!!"
                 },
-                "result": {
+                "token": {
+                  "type": "string",
+                  "example": "tokenkey"
+                },
+                "bearer": {
+                  "type": "object",
+                  "properties": {
+                    "accessToken": {
+                      "type": "string",
+                      "example": "accestoken key"
+                    },
+                    "refreshToken": {
+                      "type": "string",
+                      "example": "refreshtoken key"
+                    }
+                  }
+                },
+                "data": {
                   "$ref": "#/definitions/User"
                 }
               },
@@ -134,7 +151,7 @@
             }
           },
           "400": {
-            "description": "Bad request - username,email,password, first_name, last_name fields are required!"
+            "description": "Bad request - username,email,password, firstName, lastName fields are required!"
           }
         }
       }
@@ -172,23 +189,23 @@
                   "type": "string",
                   "example": "Password1*"
                 },
-                "first_name": {
+                "firstName": {
                   "type": "string",
                   "example": "firstname"
                 },
-                "last_name": {
+                "lastName": {
                   "type": "string",
                   "example": "lastname"
                 },
-                "is_active": {
+                "isActive": {
                   "type": "boolean",
                   "example": true
                 },
-                "is_admin": {
+                "isAdmin": {
                   "type": "boolean",
                   "example": false
                 },
-                "is_staff": {
+                "isStaff": {
                   "type": "boolean",
                   "example": false
                 }
@@ -211,7 +228,7 @@
                   "type": "string",
                   "example": "User is found!"
                 },
-                "result": {
+                "data": {
                   "$ref": "#/definitions/User"
                 }
               },
@@ -233,7 +250,16 @@
                   "type": "string",
                   "example": "User is partially updated!!"
                 },
-                "result": {
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "modifiedCount": {
+                      "type": "number",
+                      "example": 1
+                    }
+                  }
+                },
+                "new": {
                   "$ref": "#/definitions/User"
                 }
               },
@@ -288,23 +314,23 @@
                   "type": "string",
                   "example": "Password1*"
                 },
-                "first_name": {
+                "firstName": {
                   "type": "string",
                   "example": "firstname"
                 },
-                "last_name": {
+                "lastName": {
                   "type": "string",
                   "example": "lastname"
                 },
-                "is_active": {
+                "isActive": {
                   "type": "boolean",
                   "example": true
                 },
-                "is_admin": {
+                "isAdmin": {
                   "type": "boolean",
                   "example": false
                 },
-                "is_staff": {
+                "isStaff": {
                   "type": "boolean",
                   "example": false
                 }
@@ -313,8 +339,8 @@
                 "username",
                 "email",
                 "password",
-                "first_name",
-                "last_name"
+                "firstName",
+                "lastName"
               ]
             }
           }
@@ -333,7 +359,16 @@
                   "type": "string",
                   "example": "User is  !!"
                 },
-                "result": {
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "modifiedCount": {
+                      "type": "number",
+                      "example": 1
+                    }
+                  }
+                },
+                "new": {
                   "$ref": "#/definitions/User"
                 }
               },
@@ -343,7 +378,7 @@
             }
           },
           "400": {
-            "description": "Bad request    </br>- Invalid id type(ObjectId)!   </br>- username, email, password, first_name, last_name fields are required!   </br>- non-admin users can't modify other users!   "
+            "description": "Bad request    </br>- Invalid id type(ObjectId)!   </br>- username, email, password, firstName, lastName fields are required!   </br>- non-admin users can't modify other users!   "
           },
           "404": {
             "description": "Not found - User not found!"
@@ -387,7 +422,7 @@
           "Users"
         ],
         "summary": "Partial Update",
-        "description": "  Partial Update a User by id!</br></br>  <b>Permission= Normal user</b></br>   - Admin users can be update.d just by admin users</br>  - Other users can update theirselves</br>  - Admin, staff or active modifications are accessible for just the admin users!</br> </br>  - Password type Rules- [lenght:8-16, at least: 1 upper, 1 lower, 1 number, 1 special[@$!%*?&]]</br>  - Email type Rules- --@--.--</br>  - Required fields: - Aat least one of the username, email, password, first_name, last_name, is_active, is_admin, is_staff fields is required!</br>  ",
+        "description": "  Partial Update a User by id!</br></br>  <b>Permission= Normal user</b></br>   - Admin users can be update.d just by admin users</br>  - Other users can update theirselves</br>  - Admin, staff or active modifications are accessible for just the admin users!</br> </br>  - Password type Rules- [lenght:8-16, at least: 1 upper, 1 lower, 1 number, 1 special[@$!%*?&]]</br>  - Email type Rules- --@--.--</br>  - Required fields: - Aat least one of the username, email, password, firstName, lastName, isActive, isAdmin, isStaff fields is required!</br>  ",
         "parameters": [
           {
             "name": "id",
@@ -415,23 +450,23 @@
                   "type": "string",
                   "example": "Password1*"
                 },
-                "first_name": {
+                "firstName": {
                   "type": "string",
                   "example": "firstname"
                 },
-                "last_name": {
+                "lastName": {
                   "type": "string",
                   "example": "lastname"
                 },
-                "is_active": {
+                "isActive": {
                   "type": "boolean",
                   "example": true
                 },
-                "is_admin": {
+                "isAdmin": {
                   "type": "boolean",
                   "example": false
                 },
-                "is_staff": {
+                "isStaff": {
                   "type": "boolean",
                   "example": false
                 }
@@ -453,7 +488,16 @@
                   "type": "string",
                   "example": "User is partially updated!!"
                 },
-                "result": {
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "modifiedCount": {
+                      "type": "number",
+                      "example": 1
+                    }
+                  }
+                },
+                "new": {
                   "$ref": "#/definitions/User"
                 }
               },
@@ -463,7 +507,7 @@
             }
           },
           "400": {
-            "description": "Bad request    </br>- Invalid id type(ObjectId)!   </br>- At least one field of username, email, password, first_name, last_name,is_active,is_admin,is_staff fields is required!   </br>- non-admin users can't modify other users!      "
+            "description": "Bad request    </br>- Invalid id type(ObjectId)!   </br>- At least one field of username, email, password, firstName, lastName,isActive,isAdmin,isStaff fields is required!   </br>- non-admin users can't modify other users!      "
           },
           "404": {
             "description": "Not found - User not found!"
@@ -524,25 +568,69 @@
                   "type": "string",
                   "example": "Login is OK!"
                 },
-                "result": {
+                "token": {
+                  "type": "string",
+                  "example": "tokenkey"
+                },
+                "bearer": {
                   "type": "object",
                   "properties": {
-                    "token": {
+                    "accessToken": {
                       "type": "string",
-                      "example": "tokenkey"
+                      "example": "access token"
                     },
-                    "bearer": {
-                      "type": "object",
-                      "properties": {
-                        "accessToken": {
-                          "type": "string",
-                          "example": "access token"
-                        },
-                        "refreshToken": {
-                          "type": "string",
-                          "example": "refresh token"
-                        }
-                      }
+                    "refreshToken": {
+                      "type": "string",
+                      "example": "refresh token"
+                    }
+                  }
+                },
+                "user": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string",
+                      "example": "66362c828c9af95390f5aae5"
+                    },
+                    "username": {
+                      "type": "string",
+                      "example": "testba"
+                    },
+                    "password": {
+                      "type": "string",
+                      "example": "f1dffdee8d0642d170e697331929a7250aedca4ad508f4d1f9986dbdb888c5fc"
+                    },
+                    "email": {
+                      "type": "string",
+                      "example": "testba@test.com"
+                    },
+                    "firstName": {
+                      "type": "string",
+                      "example": "testba"
+                    },
+                    "lastName": {
+                      "type": "string",
+                      "example": "batest"
+                    },
+                    "isActive": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "isStaff": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "isAdmin": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "example": "2024-05-04T12:39:30.473Z"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "example": "2024-05-04T12:39:30.473Z"
                     }
                   }
                 }
@@ -738,7 +826,7 @@
                   "type": "string",
                   "example": "A new firm is created!!"
                 },
-                "result": {
+                "data": {
                   "$ref": "#/definitions/Firm"
                 }
               },
@@ -782,7 +870,7 @@
                   "type": "string",
                   "example": "Firm is found!!"
                 },
-                "result": {
+                "data": {
                   "$ref": "#/definitions/Firm"
                 }
               },
@@ -859,7 +947,16 @@
                   "type": "string",
                   "example": "firm is  !!"
                 },
-                "result": {
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "modifiedCount": {
+                      "type": "number",
+                      "example": 1
+                    }
+                  }
+                },
+                "new": {
                   "$ref": "#/definitions/Firm"
                 }
               },
@@ -994,7 +1091,16 @@
                   "type": "string",
                   "example": "Firm is partially updated!!"
                 },
-                "result": {
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "modifiedCount": {
+                      "type": "number",
+                      "example": 1
+                    }
+                  }
+                },
+                "new": {
                   "$ref": "#/definitions/Firm"
                 }
               },
@@ -1070,7 +1176,7 @@
                   "type": "string",
                   "example": "A new category is created!!"
                 },
-                "result": {
+                "data": {
                   "$ref": "#/definitions/Category"
                 }
               },
@@ -1114,7 +1220,7 @@
                   "type": "string",
                   "example": "Category is found!!"
                 },
-                "result": {
+                "data": {
                   "$ref": "#/definitions/Category"
                 }
               },
@@ -1176,7 +1282,16 @@
                   "type": "string",
                   "example": "Category is  !!"
                 },
-                "result": {
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "modifiedCount": {
+                      "type": "number",
+                      "example": 1
+                    }
+                  }
+                },
+                "new": {
                   "$ref": "#/definitions/Category"
                 }
               },
@@ -1296,7 +1411,16 @@
                   "type": "string",
                   "example": "Category is partially updated!!"
                 },
-                "result": {
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "modifiedCount": {
+                      "type": "number",
+                      "example": 1
+                    }
+                  }
+                },
+                "new": {
                   "$ref": "#/definitions/Category"
                 }
               },
@@ -1377,7 +1501,7 @@
                   "type": "string",
                   "example": "A new brand is created!!"
                 },
-                "result": {
+                "data": {
                   "$ref": "#/definitions/Brand"
                 }
               },
@@ -1421,7 +1545,7 @@
                   "type": "string",
                   "example": "Brand is found!!"
                 },
-                "result": {
+                "data": {
                   "$ref": "#/definitions/Brand"
                 }
               },
@@ -1488,7 +1612,16 @@
                   "type": "string",
                   "example": "Brand is  !!"
                 },
-                "result": {
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "modifiedCount": {
+                      "type": "number",
+                      "example": 1
+                    }
+                  }
+                },
+                "new": {
                   "$ref": "#/definitions/Brand"
                 }
               },
@@ -1613,7 +1746,16 @@
                   "type": "string",
                   "example": "Brand is partially updated!!"
                 },
-                "result": {
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "modifiedCount": {
+                      "type": "number",
+                      "example": 1
+                    }
+                  }
+                },
+                "new": {
                   "$ref": "#/definitions/Brand"
                 }
               },
@@ -1655,7 +1797,7 @@
           "Products"
         ],
         "summary": "Create new product",
-        "description": "  Create a new product!</br></br>  <b>Permission= Loginned User</b></br>   - name field Max Length:100</br>  - category_id should exist on categories</br>  - brand_id should exist on brands</br>   </br>  ",
+        "description": "  Create a new product!</br></br>  <b>Permission= Loginned User</b></br>   - name field Max Length:100</br>  - categoryId should exist on categories</br>  - brandId should exist on brands</br>   </br>  ",
         "parameters": [
           {
             "name": "body",
@@ -1668,19 +1810,19 @@
                   "type": "string",
                   "example": "newProductName"
                 },
-                "category_id": {
+                "categoryId": {
                   "type": "string",
                   "example": "66b9fddcc29ab216e263b04f"
                 },
-                "brand_id": {
+                "brandId": {
                   "type": "string",
                   "example": "66b9f845453a084e04ef28ff"
                 }
               },
               "required": [
                 "name",
-                "category_id",
-                "brand_id"
+                "categoryId",
+                "brandId"
               ]
             }
           }
@@ -1699,7 +1841,7 @@
                   "type": "string",
                   "example": "A new product is created!!"
                 },
-                "result": {
+                "data": {
                   "$ref": "#/definitions/Product"
                 }
               },
@@ -1709,7 +1851,7 @@
             }
           },
           "400": {
-            "description": "Bad request:   </br> - name, category_id, brand_id fields are required!   </br> - Invalid category_id, brand_id type(ObjectId)!   "
+            "description": "Bad request:   </br> - name, categoryId, brandId fields are required!   </br> - Invalid categoryId, brandId type(ObjectId)!   "
           },
           "404": {
             "description": "Not found:   </br> - Category not found on categories!   </br> - Brand not found on brands!   "
@@ -1746,7 +1888,7 @@
                   "type": "string",
                   "example": "Product is found!!"
                 },
-                "result": {
+                "data": {
                   "$ref": "#/definitions/Product"
                 }
               },
@@ -1768,7 +1910,7 @@
           "Products"
         ],
         "summary": "Update product",
-        "description": "  Update a new product by id!</br></br>  <b>Permission= Loginned User</b></br>   - Product name should have a unique value</br>  - name field Max Length:100</br>  - category_id should exist on categories</br>  - brand_id should exist on brands</br>   </br>  ",
+        "description": "  Update a new product by id!</br></br>  <b>Permission= Loginned User</b></br>   - Product name should have a unique value</br>  - name field Max Length:100</br>  - categoryId should exist on categories</br>  - brandId should exist on brands</br>   </br>  ",
         "parameters": [
           {
             "name": "id",
@@ -1787,19 +1929,19 @@
                   "type": "string",
                   "example": "newProductName"
                 },
-                "category_id": {
+                "categoryId": {
                   "type": "string",
                   "example": "66b9fddcc29ab216e263b04f"
                 },
-                "brand_id": {
+                "brandId": {
                   "type": "string",
                   "example": "66b9f845453a084e04ef28ff"
                 }
               },
               "required": [
                 "name",
-                "category_id",
-                "brand_id"
+                "categoryId",
+                "brandId"
               ]
             }
           }
@@ -1818,7 +1960,16 @@
                   "type": "string",
                   "example": "Product is  !!"
                 },
-                "result": {
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "modifiedCount": {
+                      "type": "number",
+                      "example": 1
+                    }
+                  }
+                },
+                "new": {
                   "$ref": "#/definitions/Product"
                 }
               },
@@ -1831,7 +1982,7 @@
             "description": "Accepted"
           },
           "400": {
-            "description": "Bad request:    </br>- name, category_id, brand_id fields are required!   </br> - Invalid param id, category_id, brand_id type(ObjectId)!   "
+            "description": "Bad request:    </br>- name, categoryId, brandId fields are required!   </br> - Invalid param id, categoryId, brandId type(ObjectId)!   "
           },
           "404": {
             "description": "Not found:    </br>- Product not found!    </br> - Category not found on categories!   </br> - Brand not found on brands!   "
@@ -1897,7 +2048,7 @@
           "Products"
         ],
         "summary": "Partially Update product",
-        "description": "  Partially Update a new product by id!</br></br>  <b>Permission= Loginned User</b></br>   - Product name should have a unique value</br>  - name field Max Length:100</br>  - category_id should exist on categories</br>  - brand_id should exist on brands</br>   </br>  ",
+        "description": "  Partially Update a new product by id!</br></br>  <b>Permission= Loginned User</b></br>   - Product name should have a unique value</br>  - name field Max Length:100</br>  - categoryId should exist on categories</br>  - brandId should exist on brands</br>   </br>  ",
         "parameters": [
           {
             "name": "id",
@@ -1908,7 +2059,7 @@
           {
             "name": "body",
             "in": "body",
-            "description": "At least one of the name, category_id, brand_id field is required!",
+            "description": "At least one of the name, categoryId, brandId field is required!",
             "required": true,
             "schema": {
               "type": "object",
@@ -1917,19 +2068,19 @@
                   "type": "string",
                   "example": "newProductName"
                 },
-                "category_id": {
+                "categoryId": {
                   "type": "string",
                   "example": "66b9fddcc29ab216e263b04f"
                 },
-                "brand_id": {
+                "brandId": {
                   "type": "string",
                   "example": "66b9f845453a084e04ef28ff"
                 }
               },
               "required": [
                 "name",
-                "category_id",
-                "brand_id"
+                "categoryId",
+                "brandId"
               ]
             }
           }
@@ -1948,7 +2099,16 @@
                   "type": "string",
                   "example": "Product is partially updated!!"
                 },
-                "result": {
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "modifiedCount": {
+                      "type": "number",
+                      "example": 1
+                    }
+                  }
+                },
+                "new": {
                   "$ref": "#/definitions/Product"
                 }
               },
@@ -1961,7 +2121,7 @@
             "description": "Accepted"
           },
           "400": {
-            "description": "Bad request:    </br>- name or category_id or brand_id field is required!   </br>- Invalid param id type(ObjectId)!!   "
+            "description": "Bad request:    </br>- name or categoryId or brandId field is required!   </br>- Invalid param id type(ObjectId)!!   "
           },
           "404": {
             "description": "Not found:    </br>- Product not found!    "
@@ -1990,7 +2150,7 @@
           "Purchases"
         ],
         "summary": "Create new purchase",
-        "description": "  Create a new purchase!</br></br>  <b>Permission= Loginned User</b></br>   - product_id should exist on products</br>   - firm_id should exist on firms</br>   </br>  ",
+        "description": "  Create a new purchase!</br></br>  <b>Permission= Loginned User</b></br>   - productId should exist on products</br>   - firmId should exist on firms</br>   </br>  ",
         "parameters": [
           {
             "name": "body",
@@ -1999,11 +2159,11 @@
             "schema": {
               "type": "object",
               "properties": {
-                "product_id": {
+                "productId": {
                   "type": "string",
                   "example": "66b9fddcc29ab216e263b04f"
                 },
-                "firm_id": {
+                "firmId": {
                   "type": "string",
                   "example": "66b9fddcc29ab216e263b04f"
                 },
@@ -2017,8 +2177,8 @@
                 }
               },
               "required": [
-                "product_id",
-                "firm_id",
+                "productId",
+                "firmId",
                 "quantity",
                 "price"
               ]
@@ -2039,7 +2199,7 @@
                   "type": "string",
                   "example": "A new purchase is created!!"
                 },
-                "result": {
+                "data": {
                   "$ref": "#/definitions/Purchase"
                 }
               },
@@ -2049,7 +2209,7 @@
             }
           },
           "400": {
-            "description": "Bad request:   </br> - product_id, firm_id, price, quantity fields are required!   </br> - Invalid brand_id, firm_id, user_id, product_id type(ObjectId)!   </br> - Invalid quantity - it can't be less than 1!   "
+            "description": "Bad request:   </br> - productId, firmId, price, quantity fields are required!   </br> - Invalid brandId, firmId, userId, productId type(ObjectId)!   </br> - Invalid quantity - it can't be less than 1!   "
           },
           "404": {
             "description": "Not found:   </br> - Product not found on products!   </br> - Brand not found on brands!   </br> - Firm not found on brands!   </br> - User not found on brands!   "
@@ -2086,7 +2246,7 @@
                   "type": "string",
                   "example": "Purchase is found!!"
                 },
-                "result": {
+                "data": {
                   "$ref": "#/definitions/Purchase"
                 }
               },
@@ -2108,7 +2268,7 @@
           "Purchases"
         ],
         "summary": "Update purchase",
-        "description": "  Update a new purchase by id!</br></br>  <b>Permission= Loginned User</b></br>   - product_id should exist on products</br>  - firm_id should exist on firms</br>   </br>  ",
+        "description": "  Update a new purchase by id!</br></br>  <b>Permission= Loginned User</b></br>   - productId should exist on products</br>  - firmId should exist on firms</br>   </br>  ",
         "parameters": [
           {
             "name": "id",
@@ -2123,11 +2283,11 @@
             "schema": {
               "type": "object",
               "properties": {
-                "product_id": {
+                "productId": {
                   "type": "string",
                   "example": "66b9fddcc29ab216e263b04f"
                 },
-                "firm_id": {
+                "firmId": {
                   "type": "string",
                   "example": "66b9fddcc29ab216e263b04f"
                 },
@@ -2141,8 +2301,8 @@
                 }
               },
               "required": [
-                "product_id",
-                "firm_id",
+                "productId",
+                "firmId",
                 "quantity",
                 "price"
               ]
@@ -2163,7 +2323,16 @@
                   "type": "string",
                   "example": "Purchase is  !!"
                 },
-                "result": {
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "modifiedCount": {
+                      "type": "number",
+                      "example": 1
+                    }
+                  }
+                },
+                "new": {
                   "$ref": "#/definitions/Purchase"
                 }
               },
@@ -2176,7 +2345,7 @@
             "description": "Accepted"
           },
           "400": {
-            "description": "Bad request:    </br>-product_id, firm_id, price, quantity fields are required!   </br> - Invalid param id, brand_id, firm_id, user_id, product_id type(ObjectId)!   </br> - Invalid quantity - it can't be less than 1!   "
+            "description": "Bad request:    </br>-productId, firmId, price, quantity fields are required!   </br> - Invalid param id, brandId, firmId, userId, productId type(ObjectId)!   </br> - Invalid quantity - it can't be less than 1!   "
           },
           "404": {
             "description": "Not found:    </br>- Purchase not found!    </br> - Product not found on products!   </br> - Brand not found on brands!   </br> - Firm not found on brands!   </br> - User not found on brands!   "
@@ -2242,7 +2411,7 @@
           "Purchases"
         ],
         "summary": "Partially Update purchase",
-        "description": "  Partially Update a new purchase by id!</br></br>  <b>Permission= Loginned User</b></br>   - product_id should exist on products</br>   - firm_id should exist on firms</br>   </br>  ",
+        "description": "  Partially Update a new purchase by id!</br></br>  <b>Permission= Loginned User</b></br>   - productId should exist on products</br>   - firmId should exist on firms</br>   </br>  ",
         "parameters": [
           {
             "name": "id",
@@ -2253,16 +2422,16 @@
           {
             "name": "body",
             "in": "body",
-            "description": "At least one of the product_id, firm_id, price, quantity field is required!",
+            "description": "At least one of the productId, firmId, price, quantity field is required!",
             "required": true,
             "schema": {
               "type": "object",
               "properties": {
-                "product_id": {
+                "productId": {
                   "type": "string",
                   "example": "66b9fddcc29ab216e263b04f"
                 },
-                "firm_id": {
+                "firmId": {
                   "type": "string",
                   "example": "66b9fddcc29ab216e263b04f"
                 },
@@ -2292,7 +2461,16 @@
                   "type": "string",
                   "example": "Purchase is partially updated!!"
                 },
-                "result": {
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "modifiedCount": {
+                      "type": "number",
+                      "example": 1
+                    }
+                  }
+                },
+                "new": {
                   "$ref": "#/definitions/Purchase"
                 }
               },
@@ -2305,7 +2483,7 @@
             "description": "Accepted"
           },
           "400": {
-            "description": "Bad request:    </br>- product_id or firm_id or price or quantity field is required!   </br>- Invalid param id, brand_id, firm_id, user_id, product_id type(ObjectId)!!   </br>- Invalid quantity - it can't be less than 1!   "
+            "description": "Bad request:    </br>- productId or firmId or price or quantity field is required!   </br>- Invalid param id, brandId, firmId, userId, productId type(ObjectId)!!   </br>- Invalid quantity - it can't be less than 1!   "
           },
           "404": {
             "description": "Not found:    </br>- Purchase not found!    </br> - Product not found on products!   </br> - Brand not found on brands!   </br> - Firm not found on brands!   </br> - User not found on brands!   "
@@ -2334,7 +2512,7 @@
           "Sales"
         ],
         "summary": "Create new sale",
-        "description": "  Create a new sale!</br></br>  <b>Permission= Loginned User</b></br>   - product_id should exist on products</br>   </br>  ",
+        "description": "  Create a new sale!</br></br>  <b>Permission= Loginned User</b></br>   - productId should exist on products</br>   </br>  ",
         "parameters": [
           {
             "name": "body",
@@ -2343,7 +2521,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "product_id": {
+                "productId": {
                   "type": "string",
                   "example": "66b9fddcc29ab216e263b04f"
                 },
@@ -2357,7 +2535,7 @@
                 }
               },
               "required": [
-                "product_id",
+                "productId",
                 "quantity",
                 "price"
               ]
@@ -2378,7 +2556,7 @@
                   "type": "string",
                   "example": "A new sale is created!!"
                 },
-                "result": {
+                "data": {
                   "$ref": "#/definitions/Sale"
                 }
               },
@@ -2388,7 +2566,7 @@
             }
           },
           "400": {
-            "description": "Bad request:   </br> - product_id, price, quantity fields are required!   </br> - Invalid brand_id, user_id, product_id type(ObjectId)!   </br> - Invalid quantity - it can't be less than 1!   "
+            "description": "Bad request:   </br> - productId, price, quantity fields are required!   </br> - Invalid brandId, userId, productId type(ObjectId)!   </br> - Invalid quantity - it can't be less than 1!   "
           },
           "404": {
             "description": "Not found:   </br> - Product not found on products!   </br> - Brand not found on brands!    </br> - User not found on brands!   "
@@ -2425,7 +2603,7 @@
                   "type": "string",
                   "example": "Sale is found!!"
                 },
-                "result": {
+                "data": {
                   "$ref": "#/definitions/Sale"
                 }
               },
@@ -2447,7 +2625,7 @@
           "Sales"
         ],
         "summary": "Update sale",
-        "description": "  Update a new sale by id!</br></br>  <b>Permission= Loginned User</b></br>   - product_id should exist on products</br>    </br>  ",
+        "description": "  Update a new sale by id!</br></br>  <b>Permission= Loginned User</b></br>   - productId should exist on products</br>    </br>  ",
         "parameters": [
           {
             "name": "id",
@@ -2462,7 +2640,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "product_id": {
+                "productId": {
                   "type": "string",
                   "example": "66b9fddcc29ab216e263b04f"
                 },
@@ -2476,7 +2654,7 @@
                 }
               },
               "required": [
-                "product_id",
+                "productId",
                 "quantity",
                 "price"
               ]
@@ -2497,7 +2675,16 @@
                   "type": "string",
                   "example": "Sale is  !!"
                 },
-                "result": {
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "modifiedCount": {
+                      "type": "number",
+                      "example": 1
+                    }
+                  }
+                },
+                "new": {
                   "$ref": "#/definitions/Sale"
                 }
               },
@@ -2510,7 +2697,7 @@
             "description": "Accepted"
           },
           "400": {
-            "description": "Bad request:    </br>-product_id, price, quantity fields are required!   </br> - Invalid param id, brand_id, user_id, product_id type(ObjectId)!   </br> - Invalid quantity - it can't be less than 1!   "
+            "description": "Bad request:    </br>-productId, price, quantity fields are required!   </br> - Invalid param id, brandId, userId, productId type(ObjectId)!   </br> - Invalid quantity - it can't be less than 1!   "
           },
           "404": {
             "description": "Not found:    </br>- Sale not found!    </br> - Product not found on products!   </br> - Brand not found on brands!    </br> - User not found on brands!   "
@@ -2576,7 +2763,7 @@
           "Sales"
         ],
         "summary": "Partially Update sale",
-        "description": "  Partially Update a new sale by id!</br></br>  <b>Permission= Loginned User</b></br>   - product_id should exist on products</br>    </br>  ",
+        "description": "  Partially Update a new sale by id!</br></br>  <b>Permission= Loginned User</b></br>   - productId should exist on products</br>    </br>  ",
         "parameters": [
           {
             "name": "id",
@@ -2587,12 +2774,12 @@
           {
             "name": "body",
             "in": "body",
-            "description": "At least one of the product_id, firm_id, price, quantity field is required!",
+            "description": "At least one of the productId, firmId, price, quantity field is required!",
             "required": true,
             "schema": {
               "type": "object",
               "properties": {
-                "product_id": {
+                "productId": {
                   "type": "string",
                   "example": "66b9fddcc29ab216e263b04f"
                 },
@@ -2622,7 +2809,16 @@
                   "type": "string",
                   "example": "Sale is partially updated!!"
                 },
-                "result": {
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "modifiedCount": {
+                      "type": "number",
+                      "example": 1
+                    }
+                  }
+                },
+                "new": {
                   "$ref": "#/definitions/Sale"
                 }
               },
@@ -2635,7 +2831,7 @@
             "description": "Accepted"
           },
           "400": {
-            "description": "Bad request:    </br>- product_id or price or quantity field is required!   </br>- Invalid param id, brand_id, user_id, product_id type(ObjectId)!!   </br>- Invalid quantity - it can't be less than 1!   "
+            "description": "Bad request:    </br>- productId or price or quantity field is required!   </br>- Invalid param id, brandId, userId, productId type(ObjectId)!!   </br>- Invalid quantity - it can't be less than 1!   "
           },
           "404": {
             "description": "Not found:    </br>- Sale not found!    </br> - Product not found on products!   </br> - Brand not found on brands!    </br> - User not found on brands!   "
@@ -2738,7 +2934,7 @@
             }
           }
         },
-        "first_name": {
+        "firstName": {
           "type": "object",
           "properties": {
             "type": {
@@ -2754,7 +2950,7 @@
             }
           }
         },
-        "last_name": {
+        "lastName": {
           "type": "object",
           "properties": {
             "type": {
@@ -2770,7 +2966,7 @@
             }
           }
         },
-        "is_active": {
+        "isActive": {
           "type": "object",
           "properties": {
             "type": {
@@ -2782,7 +2978,7 @@
             }
           }
         },
-        "is_admin": {
+        "isAdmin": {
           "type": "object",
           "properties": {
             "type": {
@@ -2794,7 +2990,7 @@
             }
           }
         },
-        "is_staff": {
+        "isStaff": {
           "type": "object",
           "properties": {
             "type": {
@@ -2811,7 +3007,7 @@
     "Token": {
       "type": "object",
       "properties": {
-        "user_id": {
+        "userId": {
           "type": "object",
           "properties": {
             "type": {
@@ -3112,7 +3308,7 @@
             }
           }
         },
-        "category_id": {
+        "categoryId": {
           "type": "object",
           "properties": {
             "type": {
@@ -3128,7 +3324,7 @@
             }
           }
         },
-        "brand_id": {
+        "brandId": {
           "type": "object",
           "properties": {
             "type": {
@@ -3149,7 +3345,7 @@
     "Purchase": {
       "type": "object",
       "properties": {
-        "user_id": {
+        "userId": {
           "type": "object",
           "properties": {
             "type": {
@@ -3165,7 +3361,7 @@
             }
           }
         },
-        "firm_id": {
+        "firmId": {
           "type": "object",
           "properties": {
             "type": {
@@ -3181,7 +3377,7 @@
             }
           }
         },
-        "brand_id": {
+        "brandId": {
           "type": "object",
           "properties": {
             "type": {
@@ -3197,7 +3393,7 @@
             }
           }
         },
-        "product_id": {
+        "productId": {
           "type": "object",
           "properties": {
             "type": {
@@ -3259,7 +3455,7 @@
     "Sale": {
       "type": "object",
       "properties": {
-        "user_id": {
+        "userId": {
           "type": "object",
           "properties": {
             "type": {
@@ -3275,7 +3471,7 @@
             }
           }
         },
-        "brand_id": {
+        "brandId": {
           "type": "object",
           "properties": {
             "type": {
@@ -3291,7 +3487,7 @@
             }
           }
         },
-        "product_id": {
+        "productId": {
           "type": "object",
           "properties": {
             "type": {

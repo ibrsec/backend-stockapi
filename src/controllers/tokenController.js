@@ -11,12 +11,12 @@ module.exports.token = {
             #swagger.ignore = true
         */
 
-    const tokens = await res.getModelList(Token,{},"user_id");
+    const tokens = await res.getModelList(Token,{},"userId");
     res.status(200).json({
       error: false,
       message: "Tokens are listed!",
       details: await res.getModelListDetails(Token),
-      result: tokens,
+      data: tokens,
     });
   },
   create: async (req, res) => {
@@ -26,16 +26,16 @@ module.exports.token = {
 
         */
 
-    const { user_id, token } = req.body;
+    const { userId, token } = req.body;
 
-    if (!user_id || !token) {
-      throw new CustomError("user_id, token fields are required!", 400);
+    if (!userId || !token) {
+      throw new CustomError("userId, token fields are required!", 400);
     }
-    if (!mongoose.Types.ObjectId.isValid(user_id)) {
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
       throw new CustomError("Invalid id type(ObjectId)!", 400);
     }
 
-    const user = await User.findOne({ _id: user_id });
+    const user = await User.findOne({ _id: userId });
     if (!user) {
       throw new CustomError("User not found on users!", 404);
     }
@@ -44,7 +44,7 @@ module.exports.token = {
     res.status(201).json({
       error: false,
       message: "A new token is created!",
-      result: newToken,
+      data: newToken,
     });
   },
   read: async (req, res) => {
@@ -56,7 +56,7 @@ module.exports.token = {
       throw new CustomError("Invalid id type(ObjectId)!", 400);
     }
 
-    const token = await Token.findOne({ _id: req.params.id }).populate('user_id');
+    const token = await Token.findOne({ _id: req.params.id }).populate('userId');
 
     if (!token) {
       throw new CustomError("Token not found!", 404);
@@ -65,7 +65,7 @@ module.exports.token = {
     res.status(200).json({
       error: false,
       message: "Token is found!",
-      result: token,
+      data: token,
     });
   },
   update: async (req, res) => {
@@ -77,10 +77,10 @@ module.exports.token = {
       throw new CustomError("Invalid id type(ObjectId)!", 400);
     }
 
-    const { token, user_id } = req.body;
+    const { token, userId } = req.body;
 
-    if (!token || !user_id) {
-      throw new CustomError("token, user_id fields are required!", 400);
+    if (!token || !userId) {
+      throw new CustomError("token, userId fields are required!", 400);
     }
 
     const tokenData = await Token.findOne({ _id: req.params.id });
@@ -88,22 +88,22 @@ module.exports.token = {
       throw new CustomError("Token not found", 404);
     }
 
-    if (!mongoose.Types.ObjectId.isValid(user_id)) {
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
       throw new CustomError("Invalid id type(ObjectId)!", 400);
     }
 
-    const user = await User.findOne({ _id: user_id });
+    const user = await User.findOne({ _id: userId });
     if (!user) {
       throw new CustomError("User not found on users!", 404);
     }
 
-    const { modifiedCount } = await Token.updateOne(
+    const data = await Token.updateOne(
       { _id: req.params.id },
       req.body,
       { runValidators: true }
     );
 
-    if (modifiedCount < 1) {
+    if (data?.modifiedCount < 1) {
       throw new CustomError(
         "Something went wrong! - asked record is found, but it couldn't be updated!",
         500
@@ -113,7 +113,8 @@ module.exports.token = {
     res.status(202).json({
       error: false,
       message: "Token is updated!",
-      result: await Token.findOne({ _id: req.params.id }),
+      data,
+      new: await Token.findOne({ _id: req.params.id }),
     });
   },
   partialUpdate: async (req, res) => {
@@ -125,11 +126,11 @@ module.exports.token = {
       throw new CustomError("Invalid id type(ObjectId)!", 400);
     }
 
-    const { token, user_id } = req.body;
+    const { token, userId } = req.body;
 
-    if (!(token || user_id)) {
+    if (!(token || userId)) {
       throw new CustomError(
-        "At least one field of token, user_id fields is required!",
+        "At least one field of token, userId fields is required!",
         400
       );
     }
@@ -139,22 +140,22 @@ module.exports.token = {
       throw new CustomError("Token not found", 404);
     }
 
-    if (!mongoose.Types.ObjectId.isValid(user_id)) {
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
       throw new CustomError("Invalid id type(ObjectId)!", 400);
     }
 
-    const user = await User.findOne({ _id: user_id });
+    const user = await User.findOne({ _id: userId });
     if (!user) {
       throw new CustomError("User not found on users!", 404);
     }
 
-    const { modifiedCount } = await Token.updateOne(
+    const data = await Token.updateOne(
       { _id: req.params.id },
       req.body,
       { runValidators: true }
     );
 
-    if (modifiedCount < 1) {
+    if (data?.modifiedCount < 1) {
       throw new CustomError(
         "Something went wrong! - asked record is found, but it couldn't be updated!",
         500
@@ -164,7 +165,8 @@ module.exports.token = {
     res.status(202).json({
       error: false,
       message: "Token is partially updated!",
-      result: await Token.findOne({ _id: req.params.id }),
+      data,
+      new: await Token.findOne({ _id: req.params.id }),
     });
   },
   delete: async (req, res) => {
