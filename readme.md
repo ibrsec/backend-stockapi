@@ -96,23 +96,19 @@
 📦 A Backend of Stock App Project</br>
 🏀 [Frontend Repo](https://github.com/ibrsec/stockapp-frontend-selfservice) </br></br>
 
-🎯 <b>React Development:</b> Built a responsive frontend with React.js, delivering a seamless user experience.</br>
+<b>🎯 Express.js Framework:</b> Developed a robust RESTful API with Express.js for secure and efficient stock data management.
 
-🛠 <b>State Management:</b> Utilized Redux Toolkit and Persist for consistent state management across sessions.</br>
+<b>🔒 Authentication & Authorization:</b> Implemented Simple Token, JWT for secure user authentication.
 
-🚀 <b>React Router:</b> Integrated React Router for smooth navigation between key sections like dashboard, products, and sales.</br>
+<b>📄 API Documentation:</b> Created clear API docs with Swagger and Redoc for easy testing and understanding.
 
-📊 <b>UI Components:</b> Employed Material UI's DataGrid and Charts for interactive tables and data visualizations.</br>
+<b>📊 Database Management:</b> Utilized MongoDB and Mongoose for consistent data modeling and querying.
 
-📝 <b>Form Validation:</b> Managed forms with Formik and Yup for accurate data input and validation.</br>
+<b>🔄 CRUD Operations:</b> Built full CRUD functionality for products, sales, purchases, firms, and brands.
 
-🔔 <b>User Notifications:</b> Added real-time feedback using Toastify for actions like adding or editing records.</br>
+<b>🛠 Middleware & Error Handling:</b> Added custom middleware for validation and consistent error handling.
 
-💾 <b>CRUD Operations:</b> Implemented full CRUD functionality for products, sales, firms, and more.</br>
-
-🃏 <b>Card Layouts:</b> Designed intuitive card-based interfaces for managing firms and brands.</br>
-
-📊 <b>Data Tables:</b> Organized stock information in editable tables for easy data management.
+<b>🌐 Scalable Deployment:</b> Deployed on Render platform for high availability.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
